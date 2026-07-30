@@ -151,6 +151,19 @@ Usa: pending, partial, in_progress, blocked, approved, deferred, not_applicable.
 - YYYY-MM-DD — ...
 ```
 
+## Regole di coerenza e persistenza
+
+- Non dire “ho registrato” finché il file non è stato scritto e riletto oppure il diff non mostra i valori.
+- Ogni esclusione confermata va copiata in `Scope > Explicitly excluded`, non soltanto in vincoli o decisioni.
+- Quando una decisione chiude un prerequisito, aggiorna i campi dipendenti e rimuovi note ormai vecchie.
+- `Target platforms` descrive il target attuale. Uno stack multipiattaforma non aggiunge piattaforme non richieste.
+- Motiva lo stack con il requisito corrente; eventuali possibilità future restano in `Later` o nelle assunzioni.
+- Per modalità personale, classifica store, monetizzazione, backend remoto e compliance pubblica come
+  `not_applicable` quando esplicitamente esclusi; non lasciare tutto genericamente `pending`.
+- `State owner` e `Workflow` devono riflettere la sessione reale: una sola chat per default, due soltanto
+  dopo attivazione esplicita del workflow Design/Sviluppo.
+- Dopo ogni aggiornamento materiale, rileggi almeno le sezioni modificate e correggi incoerenze prima di rispondere.
+
 ## Regole
 
 - Una sola fase e una sola slice `in_progress`.
