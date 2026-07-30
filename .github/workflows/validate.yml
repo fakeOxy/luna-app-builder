@@ -17,12 +17,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  refresh_manifest:
+    name: Refresh integrity manifest on feature branch pushes
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate deterministic integrity manifest
+        run: python scripts/generate_integrity_manifest.py
+
+      - name: Commit refreshed manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet -- integrity-manifest.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add integrity-manifest.json
+            git commit -m "chore: refresh integrity manifest"
+            git push
+          fi
+
   linux:
     name: Linux validation and three-mode smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: write
     steps:
       - name: Checkout branch head
         uses: actions/checkout@v4
@@ -34,24 +63,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate deterministic integrity manifest
+      - name: Generate deterministic integrity manifest locally
         run: python scripts/generate_integrity_manifest.py
-
-      - name: Commit refreshed manifest on repository branches
-        if: >-
-          (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')) ||
-          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! git diff --quiet -- integrity-manifest.json; then
-            branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add integrity-manifest.json
-            git commit -m "chore: refresh integrity manifest"
-            git push origin "HEAD:$branch"
-          fi
 
       - name: Install validator dependency
         run: python -m pip install --disable-pip-version-check pyyaml
@@ -150,7 +163,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate deterministic integrity manifest
+      - name: Generate deterministic integrity manifest locally
         run: python scripts/generate_integrity_manifest.py
 
       - name: Parse PowerShell scripts
