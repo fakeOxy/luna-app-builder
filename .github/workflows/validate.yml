@@ -103,22 +103,23 @@ jobs:
       - name: Smoke test PowerShell install, init, Doctor and integrity
         shell: pwsh
         run: |
+          $repo = $env:GITHUB_WORKSPACE
           $sandbox = Join-Path $env:RUNNER_TEMP "luna-smoke-$([guid]::NewGuid())"
           New-Item -ItemType Directory -Force -Path $sandbox | Out-Null
           try {
-            & ./scripts/install.ps1 -Scope Project -ProjectPath $sandbox
-            & ./scripts/init-project.ps1 -ProjectName "App di prova" -Mode personal -ProjectPath $sandbox
+            & (Join-Path $repo "scripts/install.ps1") -Scope Project -ProjectPath $sandbox
+            & (Join-Path $repo "scripts/init-project.ps1") -ProjectName "App di prova" -Mode personal -ProjectPath $sandbox
             if (-not (Test-Path (Join-Path $sandbox ".agents/skills/app-builder/SKILL.md"))) { throw "Skill non installata" }
             if (-not (Test-Path (Join-Path $sandbox ".app-builder/state.md"))) { throw "Stato non creato" }
             if (-not (Test-Path (Join-Path $sandbox "docs/PROJECT_VISION.md"))) { throw "Documenti non creati" }
             $rendered = Get-ChildItem (Join-Path $sandbox ".app-builder"), (Join-Path $sandbox "docs") -Recurse -File |
               Select-String -Pattern '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}'
             if ($rendered) { throw "Sono rimasti placeholder non renderizzati" }
-            & ./scripts/doctor.ps1 -ProjectPath $sandbox -Mode personal -OutputPath ".app-builder/doctor-report.md"
+            & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $sandbox -Mode personal -OutputPath ".app-builder/doctor-report.md"
             if (-not (Select-String -Path (Join-Path $sandbox ".app-builder/doctor-report.md") -Pattern "# App Builder Doctor" -Quiet)) {
               throw "Report Doctor non valido"
             }
-            & ./scripts/verify-integrity.ps1 -RootPath $env:GITHUB_WORKSPACE
+            & (Join-Path $repo "scripts/verify-integrity.ps1") -RootPath $repo
           }
           finally {
             Remove-Item $sandbox -Recurse -Force -ErrorAction SilentlyContinue
