@@ -9,6 +9,7 @@ $ProjectPath = [System.IO.Path]::GetFullPath($ProjectPath)
 New-Item -ItemType Directory -Force -Path $ProjectPath | Out-Null
 $Root = Split-Path $PSScriptRoot -Parent
 $Today = Get-Date -Format "yyyy-MM-dd"
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 function Render([string]$Text) {
   return $Text.Replace("{{PROJECT_NAME}}", $ProjectName).Replace("{{PROJECT_MODE}}", $Mode).Replace("{{PROJECT_ROOT}}", $ProjectPath).Replace("{{DATE}}", $Today).Replace("{PROJECT_NAME}", $ProjectName).Replace("{PROJECT_MODE}", $Mode).Replace("{PROJECT_ROOT}", $ProjectPath).Replace("{DATE}", $Today)
@@ -16,7 +17,8 @@ function Render([string]$Text) {
 function Copy-Rendered([string]$Source, [string]$Destination) {
   if ((Test-Path $Destination) -and -not $Force) { Write-Host "Preservato: $Destination"; return }
   New-Item -ItemType Directory -Force -Path (Split-Path $Destination -Parent) | Out-Null
-  Render (Get-Content $Source -Raw) | Set-Content $Destination -Encoding UTF8
+  $rendered = Render (Get-Content $Source -Raw -Encoding UTF8)
+  [System.IO.File]::WriteAllText($Destination, ($rendered.TrimEnd("`r", "`n") + "`n"), $Utf8NoBom)
   Write-Host "Creato: $Destination"
 }
 
