@@ -1,5 +1,14 @@
 # Changelog
 
+## In sviluppo — 2.0.0-beta.2
+
+- Aggiunge `$app-product-discovery` come primo specialista nativo di Luna.
+- Introduce livelli di evidenza E0-E4 e decisioni `go`, `go_with_assumptions`, `pivot`, `hold` e `stop`.
+- Distingue ricerca documentale, osservazioni e validazione del comportamento reale.
+- Aggiunge `docs/PRODUCT_DISCOVERY.md` ai nuovi progetti.
+- Integra discovery nel primo avvio, nel routing, nel Doctor e nei test automatici.
+- Impedisce lo scaffold prematuro salvo spike tecnico delimitato e approvato.
+
 ## 2.0.0-beta.1 — 2026-07-30
 
 - Introduce **Luna** come identità dell'agente.
