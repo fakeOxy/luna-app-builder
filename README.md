@@ -21,6 +21,19 @@ Versione: `2.0.0-beta.1`.
 - integrazione guidata con Expo, Supabase e Codex Security;
 - script Windows e macOS/Linux.
 
+## Core e specialisti
+
+Il core installato contiene **quattro skill**:
+
+- `$app-builder`, che coordina l'intero ciclo di vita;
+- `$app-builder-doctor`, che verifica strumenti e autorizzazioni;
+- `$app-builder-handoff`, che coordina sessioni separate quando servono;
+- `$app-builder-about`, che espone versione, crediti e integrità.
+
+Queste skill coprono processo, decisioni, stato, gate e routing. Luna richiama specialisti esterni
+soltanto quando pertinenti, per esempio Expo, Supabase, Codex Security, UX, design system, store e
+pagamenti. Non installa l'intero catalogo per sport, perché anche i computer meritano un minimo di pietà.
+
 ## Installazione consigliata da GitHub
 
 ### Plugin Codex
@@ -110,9 +123,10 @@ Le installazioni vengono eseguite solo dopo consenso. Per le sorgenti ufficiali 
 - Supabase: `npx plugins add supabase-community/supabase-plugin --yes`;
 - Codex Security: installazione guidata da `/plugins` o Directory plugin, poi nuova sessione.
 
-## Due chat ChatGPT
+## Una o due chat ChatGPT
 
-Luna può generare prompt e handoff per:
+La modalità predefinita è una sola chat, soprattutto per le app personali. Luna può attivare un
+workflow a due chat quando design e sviluppo hanno lavoro materiale separato e generare prompt e handoff per:
 
 1. `Design – UI [Nome progetto]`;
 2. `Sviluppo – Frontend, backend e database [Nome progetto]`.
