@@ -19,7 +19,8 @@
 - Current phase: Phase 0 — Preflight and feasibility
 - Delivery mode: guided
 - Current slice: INIT-00
-- State owner: Sviluppo – Frontend, backend e database {PROJECT_NAME}
+- State owner: current session until a two-chat workflow is explicitly activated
+- Workflow: single_chat by default; may become two_chat when justified
 - Last updated: {DATE}
 
 ## Feasibility and constraints
@@ -42,7 +43,7 @@
 ### Later
 - da definire
 ### Explicitly excluded
-- da definire
+- Nessuna esclusione confermata ancora. Quando l’utente esclude una funzione, elencarla qui in modo esplicito.
 
 ## Risk and conditional modules
 - Data sensitivity: unknown
@@ -68,7 +69,7 @@
 - Last deep scan: never
 - Open findings: unknown
 - Data map: not_started
-- Privacy/legal review: not_started
+- Privacy/legal review: unknown — classify after scope is known
 - Backup/restore status: not_applicable_or_pending
 
 ## Confirmed decisions
