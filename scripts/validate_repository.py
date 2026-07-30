@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Static validation for the Luna App Builder repository.
 
-This script is intentionally dependency-light apart from PyYAML. It checks the
-plugin metadata, skills, templates, attribution, integrity manifest, and obvious
-secret leaks. It does not execute external installers or contact third-party
-services.
+The validator checks metadata, native skills, templates, attribution, obvious
+secret leaks, installer safety and the integrity manifest. It deliberately does
+not contact third-party services or execute external installers.
 """
 from __future__ import annotations
 
@@ -17,7 +16,7 @@ from typing import Any
 
 try:
     import yaml
-except ImportError as exc:  # pragma: no cover - explicit CI/setup failure
+except ImportError as exc:  # pragma: no cover
     raise SystemExit("PyYAML non installato. Esegui: python -m pip install pyyaml") from exc
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,6 +28,7 @@ EXPECTED_SKILLS = {
     "app-builder-doctor",
     "app-builder-handoff",
     "app-builder-about",
+    "app-product-discovery",
 }
 ALLOWED_TEMPLATE_KEYS = {"PROJECT_NAME", "PROJECT_MODE", "PROJECT_ROOT", "DATE", "HANDOFF_ID"}
 IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache"}
@@ -45,9 +45,16 @@ def warn(message: str) -> None:
     warnings.append(message)
 
 
+def ignored(path: Path) -> bool:
+    return any(part in IGNORED_PARTS for part in path.parts)
+
+
 def read_text(path: Path) -> str:
     try:
         return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        fail(f"File mancante: {path.relative_to(ROOT)}")
+        return ""
     except UnicodeDecodeError:
         fail(f"File non UTF-8: {path.relative_to(ROOT)}")
         return ""
@@ -83,7 +90,8 @@ def parse_frontmatter(path: Path) -> tuple[dict[str, Any], str]:
     if not match:
         fail(f"Frontmatter YAML mancante o malformato: {path.relative_to(ROOT)}")
         return {}, text
-    return load_yaml_text(match.group(1), str(path.relative_to(ROOT))), text[match.end() :]
+    metadata = load_yaml_text(match.group(1), str(path.relative_to(ROOT)))
+    return metadata, text[match.end() :]
 
 
 def sha256(path: Path) -> str:
@@ -93,6 +101,7 @@ def sha256(path: Path) -> str:
 required_paths = [
     ".agents/plugins/marketplace.json",
     ".codex-plugin/plugin.json",
+    ".github/workflows/validate.yml",
     "README.md",
     "NOTICE",
     "CREDITS.md",
@@ -100,6 +109,7 @@ required_paths = [
     "SECURITY.md",
     "creator.json",
     "integrity-manifest.json",
+    "docs/VALIDATION.md",
     "scripts/install.sh",
     "scripts/install.ps1",
     "scripts/init-project.sh",
@@ -111,19 +121,23 @@ required_paths = [
     "scripts/validate_repository.py",
     "templates/state.md",
     "templates/app-builder.config.json",
-    ".github/workflows/validate.yml",
+    "templates/docs/PRODUCT_DISCOVERY.md",
+    "skills/app-product-discovery/SKILL.md",
+    "skills/app-product-discovery/agents/openai.yaml",
+    "skills/app-product-discovery/references/evidence-rubric.md",
+    "skills/app-product-discovery/references/discovery-template.md",
 ]
 for relative in required_paths:
     if not (ROOT / relative).is_file():
         fail(f"File obbligatorio mancante: {relative}")
 
-# Parse every JSON and YAML file early so syntax failures are explicit.
+# Parse every JSON and YAML file first so syntax failures are explicit.
 for path in sorted(ROOT.rglob("*.json")):
-    if not any(part in IGNORED_PARTS for part in path.parts):
+    if not ignored(path):
         load_json(path)
 for suffix in ("*.yaml", "*.yml"):
     for path in sorted(ROOT.rglob(suffix)):
-        if not any(part in IGNORED_PARTS for part in path.parts):
+        if not ignored(path):
             load_yaml_text(read_text(path), str(path.relative_to(ROOT)))
 
 creator = load_json(ROOT / "creator.json")
@@ -166,12 +180,13 @@ else:
     item = plugins[0]
     if item.get("name") != EXPECTED_PLUGIN_NAME:
         fail("Nome plugin marketplace non coerente")
-    if item.get("source", {}).get("source") != "local" or item.get("source", {}).get("path") != "./":
+    source = item.get("source", {})
+    if source.get("source") != "local" or source.get("path") != "./":
         fail("Il marketplace deve usare source local con path ./")
     if item.get("policy", {}).get("installation") != "AVAILABLE":
         fail("Policy marketplace installation deve essere AVAILABLE")
 
-# Skill structure and cross-file metadata.
+# Native skill structure and metadata.
 skills_root = ROOT / "skills"
 actual_skills = {path.name for path in skills_root.iterdir() if path.is_dir()} if skills_root.is_dir() else set()
 if actual_skills != EXPECTED_SKILLS:
@@ -205,11 +220,14 @@ main_skill = read_text(ROOT / "skills/app-builder/SKILL.md")
 for reference in sorted(set(re.findall(r"references/[A-Za-z0-9_.-]+\.md", main_skill))):
     if not (ROOT / "skills/app-builder" / reference).is_file():
         fail(f"Riferimento inesistente nella skill principale: {reference}")
+if "$app-product-discovery" not in main_skill:
+    fail("La skill principale non instrada il product discovery")
+if "docs/PRODUCT_DISCOVERY.md" not in read_text(ROOT / "skills/app-product-discovery/SKILL.md"):
+    fail("Product Discovery non dichiara il proprio artefatto persistente")
 
-# Attribution must remain visible in the package, but never be forced into generated apps.
+# Attribution remains visible in the package, never forced into generated apps.
 for relative in ("README.md", "NOTICE", "CREDITS.md", "skills/app-builder/SKILL.md"):
-    text = read_text(ROOT / relative)
-    if EXPECTED_CREATOR not in text:
+    if EXPECTED_CREATOR not in read_text(ROOT / relative):
         fail(f"Credito del creatore mancante in {relative}")
 if "Le app create non devono mostrare i crediti" not in main_skill:
     fail("La skill principale non separa i crediti di Luna dalle app generate")
@@ -225,7 +243,7 @@ for path in sorted((ROOT / "templates").rglob("*")):
 if config_template.get("appBuilder", {}).get("creator") != EXPECTED_CREATOR:
     fail("Il template config non conserva il credito del creatore")
 
-# Obvious secret/material leak scan. False positives are kept deliberately narrow.
+# Narrow secret/material leak scan.
 forbidden_names = re.compile(r"(^|/)(\.env($|\.)|.*\.(p8|p12|jks|keystore|pem|key))$", re.IGNORECASE)
 secret_patterns = [
     ("private key", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")),
@@ -234,7 +252,7 @@ secret_patterns = [
     ("Stripe live key", re.compile(r"\b(?:sk|rk)_live_[A-Za-z0-9]{16,}\b")),
 ]
 for path in sorted(ROOT.rglob("*")):
-    if not path.is_file() or any(part in IGNORED_PARTS for part in path.parts):
+    if not path.is_file() or ignored(path):
         continue
     relative = path.relative_to(ROOT).as_posix()
     if forbidden_names.search(relative):
@@ -250,7 +268,7 @@ for path in sorted(ROOT.rglob("*")):
         if pattern.search(text):
             fail(f"Possibile {label} incluso in {relative}")
 
-# Block a few especially dangerous installer patterns.
+# Block especially dangerous installer patterns.
 installer_text = "\n".join(read_text(ROOT / p) for p in ("scripts/install.sh", "scripts/install.ps1"))
 for label, pattern in {
     "download ed esecuzione remota": r"(?:curl|wget|Invoke-WebRequest).*(?:\||iex|Invoke-Expression|bash|sh)",
@@ -260,7 +278,7 @@ for label, pattern in {
     if re.search(pattern, installer_text, re.IGNORECASE):
         fail(f"Pattern pericoloso negli installer: {label}")
 
-# Integrity manifest: every repository file except the manifest itself must be covered.
+# Integrity manifest: every repository file except the manifest itself is covered.
 entries = manifest.get("files")
 if not isinstance(entries, list):
     fail("integrity-manifest.json.files deve essere una lista")
@@ -282,11 +300,9 @@ for entry in entries:
     if not path.is_file():
         fail(f"File del manifesto mancante: {relative}")
         continue
-    actual_size = path.stat().st_size
-    actual_hash = sha256(path)
-    if entry.get("size") != actual_size:
-        fail(f"Dimensione manifesto errata per {relative}: {entry.get('size')} != {actual_size}")
-    if entry.get("sha256") != actual_hash:
+    if entry.get("size") != path.stat().st_size:
+        fail(f"Dimensione manifesto errata per {relative}: {entry.get('size')} != {path.stat().st_size}")
+    if entry.get("sha256") != sha256(path):
         fail(f"Checksum manifesto errato per {relative}")
 
 repository_files = {
@@ -294,7 +310,7 @@ repository_files = {
     for path in ROOT.rglob("*")
     if path.is_file()
     and path.name != "integrity-manifest.json"
-    and not any(part in IGNORED_PARTS for part in path.parts)
+    and not ignored(path)
 }
 missing_from_manifest = sorted(repository_files - manifest_paths)
 extra_in_manifest = sorted(manifest_paths - repository_files)
