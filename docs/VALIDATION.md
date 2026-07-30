@@ -14,8 +14,9 @@ La pull request di Luna App Builder viene controllata automaticamente su Linux e
 - sintassi degli script Bash e PowerShell;
 - copertura e checksum del manifesto SHA-256;
 - installazione in una cartella temporanea;
-- inizializzazione di un progetto personale;
-- generazione dei documenti e rimozione dei placeholder;
+- inizializzazione separata delle modalità personale, prototipo e pubblicazione;
+- generazione dei documenti, rimozione dei placeholder e workflow a una chat per default;
+- preservazione UTF-8 su Windows, inclusi trattini lunghi e caratteri accentati;
 - esecuzione del Doctor;
 - verifica finale dell'integrità.
 
