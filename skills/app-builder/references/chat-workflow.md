@@ -2,8 +2,15 @@
 
 ## Quando usarlo
 
-Usa due chat per progetti con UI rilevante e implementazione continuativa. Per una piccola app
-personale una sola chat può essere più efficiente.
+La modalità iniziale è `single_chat`. Passa a `two_chat` soltanto quando esistono attività materiali
+separate di design e sviluppo, proprietari chiari e un vantaggio concreto nel parallelismo.
+
+- **Personale:** una chat per impostazione predefinita.
+- **Prototipo:** una chat per default; due se UI e implementazione procedono davvero in parallelo.
+- **Pubblicazione:** due chat consigliate per progetti non banali, ma non obbligatorie.
+
+Non impostare nomi di chat o `state owner` fittizi prima che il workflow a due chat sia stato
+esplicitamente attivato. In una sola chat, lo state owner è la sessione corrente.
 
 ## Chat 1 — Design – UI [Nome progetto]
 
