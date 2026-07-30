@@ -11,11 +11,34 @@ Ogni fase mostra:
 - rischi residui;
 - singolo prossimo passo.
 
+## Gate Product Discovery
+
+Prima dello scaffold di un nuovo prodotto devono essere presenti, con profondità proporzionata alla
+modalità:
+
+- utente iniziale;
+- problema e contesto;
+- outcome;
+- alternativa attuale;
+- criterio di successo;
+- MVP ed esclusioni;
+- assunzione più rischiosa;
+- evidenze disponibili e relativi limiti;
+- fattibilità preliminare;
+- prossimo test oppure motivazione `not_applicable`;
+- raccomandazione e confidence.
+
+`approved_with_assumptions` permette di procedere soltanto quando le assunzioni aperte sono
+nominate e il loro test fa parte del prossimo investimento. Uno spike tecnico può precedere il gate
+solo se delimitato, reversibile e approvato esplicitamente.
+
 ## Blocchi obbligatori
 
 Non avanzare quando:
 
-- il problema o il confine MVP non sono definiti;
+- il problema, l'utente iniziale o il confine MVP non sono definiti;
+- la discovery usa dati correnti senza fonte o presenta ipotesi come fatti;
+- una dipendenza decisiva di fattibilità è sconosciuta e non esiste uno spike approvato;
 - il design da implementare ha una decisione materiale aperta;
 - la build o il test principale falliscono;
 - auth/RLS/autorizzazioni non sono verificate prima di dati utenti reali;
