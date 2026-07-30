@@ -8,7 +8,7 @@ Luna guida una persona, anche senza esperienza tecnica, dall'idea a:
 - un prototipo;
 - un prodotto pubblicato e mantenuto.
 
-Versione: `2.0.0-beta.1`.
+Versione pubblicata: `2.0.0-beta.1`.
 
 ## Cosa contiene
 
@@ -16,23 +16,30 @@ Versione: `2.0.0-beta.1`.
 - `$app-builder-doctor`: pre-check, installazioni autorizzate e post-check;
 - `$app-builder-handoff`: workflow Design/Sviluppo;
 - `$app-builder-about`: crediti, versione e integrità;
-- template di progetto, privacy, test, release e handoff;
+- `$app-product-discovery`: problema, utenti, alternative, evidenze, rischi e gate prima del codice;
+- template di progetto, privacy, test, discovery, release e handoff;
 - mappa end-to-end per chiudere o dichiarare ogni area applicabile;
 - integrazione guidata con Expo, Supabase e Codex Security;
 - script Windows e macOS/Linux.
 
 ## Core e specialisti
 
-Il core installato contiene **quattro skill**:
+Il pacchetto in sviluppo contiene **cinque skill native**:
 
 - `$app-builder`, che coordina l'intero ciclo di vita;
 - `$app-builder-doctor`, che verifica strumenti e autorizzazioni;
 - `$app-builder-handoff`, che coordina sessioni separate quando servono;
-- `$app-builder-about`, che espone versione, crediti e integrità.
+- `$app-builder-about`, che espone versione, crediti e integrità;
+- `$app-product-discovery`, primo specialista nativo, che impedisce di passare dall'idea allo scaffold senza chiarire cosa viene costruito e perché.
 
-Queste skill coprono processo, decisioni, stato, gate e routing. Luna richiama specialisti esterni
-soltanto quando pertinenti, per esempio Expo, Supabase, Codex Security, UX, design system, store e
-pagamenti. Non installa l'intero catalogo per sport, perché anche i computer meritano un minimo di pietà.
+Le prime quattro formano il core operativo; `app-product-discovery` è uno specialista incluso perché
+serve all'inizio di quasi ogni progetto. Luna richiama gli altri specialisti esterni soltanto quando
+pertinenti, per esempio Expo, Supabase, Codex Security, UX, design system, store e pagamenti. Non
+installa l'intero catalogo per sport, perché anche i computer meritano un minimo di pietà.
+
+La release `v2.0.0-beta.1` resta il riferimento congelato del core iniziale. Le modifiche successive
+su branch e pull request appartengono alla preparazione di `v2.0.0-beta.2` finché non vengono
+validate e pubblicate.
 
 ## Installazione consigliata da GitHub
 
@@ -109,6 +116,9 @@ Inizializzazione e Doctor:
 
 Modalità: `personal`, `prototype`, `publication`.
 
+L'inizializzatore crea anche `docs/PRODUCT_DISCOVERY.md`, che conserva problema, utenti, prove,
+assunzioni e decisione prima dell'MVP.
+
 ## Doctor
 
 Il Doctor controlla senza installare:
@@ -122,6 +132,10 @@ Le installazioni vengono eseguite solo dopo consenso. Per le sorgenti ufficiali 
 - Expo: `codex plugin add expo@openai-curated`;
 - Supabase: `npx plugins add supabase-community/supabase-plugin --yes`;
 - Codex Security: installazione guidata da `/plugins` o Directory plugin, poi nuova sessione.
+
+`app-product-discovery` è inclusa nel pacchetto Luna e non richiede software o account aggiuntivi.
+La ricerca pubblica viene eseguita soltanto quando serve e deve distinguere fonti, ipotesi e prove
+di comportamento reale.
 
 ## Una o due chat ChatGPT
 
@@ -140,6 +154,7 @@ ChatGPT e incolla i prompt generati.
 - installazioni o login senza consenso;
 - revisione legale professionale;
 - approvazione garantita degli store;
+- che una ricerca documentale equivalga a domanda validata;
 - crediti fisicamente immodificabili su un computer controllato da terzi.
 
 Luna dichiara questi limiti quando diventano rilevanti, prepara i passaggi manuali e blocca le
