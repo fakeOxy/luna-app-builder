@@ -15,3 +15,5 @@
 - Imposta una sola chat come default e attiva il workflow Design/Sviluppo solo quando giustificato.
 - Rafforza la persistenza di esclusioni, piattaforme correnti e campi dipendenti nello stato.
 - Estende gli smoke test alle modalità personale, prototipo e pubblicazione su Linux e Windows.
+- Corregge il routing della skill community `app-store-screenshots`.
+- Aggiorna installazione pubblica e documentazione di tag, integrità e firma prima della pre-release.

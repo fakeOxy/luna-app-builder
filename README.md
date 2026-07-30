@@ -52,13 +52,13 @@ $app-builder-doctor
 
 ### Skills CLI
 
-Per installare le skill direttamente dal repository:
+Per installare tutte le skill nel progetto corrente per Codex:
 
 ```powershell
-npx skills@latest add fakeOxy/luna-app-builder
+npx skills add fakeOxy/luna-app-builder --skill "*" -a codex --copy -y
 ```
 
-Il comando permette di scegliere l'agente e le skill da installare. Dopo l'installazione apri una nuova sessione dell'agente.
+Dopo l'installazione apri una nuova sessione Codex nella cartella del progetto.
 
 ## Installazione manuale su Windows
 
@@ -156,5 +156,6 @@ Builder. Per distribuzione pubblica/commerciale, la licenza va revisionata profe
 .\scripts\verify-integrity.ps1
 ```
 
-Il controllo rileva differenze rispetto al pacchetto. La firma forte delle release verrà aggiunta
-quando esisterà il repository ufficiale; vedi `docs/RELEASE-SIGNING.md`.
+Il controllo rileva differenze rispetto al pacchetto. Il repository ufficiale esiste e le release
+possono essere collegate a un tag Git verificabile. La beta `2.0.0-beta.1` usa il manifesto SHA-256,
+ma non include ancora una firma crittografica forte; vedi `docs/RELEASE-SIGNING.md`.
