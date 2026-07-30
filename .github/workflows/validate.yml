@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   linux:
-    name: Linux validation and smoke test
+    name: Linux validation and three-mode smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -58,27 +58,55 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test Bash install, init, Doctor and integrity
+      - name: Smoke test Bash install, three modes, Doctor and integrity
         shell: bash
         run: |
           set -euo pipefail
-          sandbox="$(mktemp -d)"
-          trap 'rm -rf "$sandbox"' EXIT
-          bash scripts/install.sh --scope project --project "$sandbox"
-          bash scripts/init-project.sh --name "App di prova" --mode personal --path "$sandbox"
-          test -f "$sandbox/.agents/skills/app-builder/SKILL.md"
-          test -f "$sandbox/.app-builder/state.md"
-          test -f "$sandbox/docs/PROJECT_VISION.md"
-          if grep -R -nE '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}' "$sandbox/.app-builder" "$sandbox/docs"; then
-            echo "Sono rimasti placeholder non renderizzati" >&2
-            exit 1
-          fi
-          bash scripts/doctor.sh --project "$sandbox" --mode personal --output .app-builder/doctor-report.md
-          grep -q "# App Builder Doctor" "$sandbox/.app-builder/doctor-report.md"
+          root="$(mktemp -d)"
+          trap 'rm -rf "$root"' EXIT
+
+          for mode in personal prototype publication; do
+            sandbox="$root/$mode"
+            mkdir -p "$sandbox"
+            bash scripts/install.sh --scope project --project "$sandbox"
+            bash scripts/init-project.sh --name "Test $mode" --mode "$mode" --path "$sandbox"
+
+            test -f "$sandbox/.agents/skills/app-builder/SKILL.md"
+            test -f "$sandbox/.app-builder/state.md"
+            test -f "$sandbox/docs/PROJECT_VISION.md"
+            grep -q "Project mode: $mode" "$sandbox/.app-builder/state.md"
+            grep -q "State owner: current session" "$sandbox/.app-builder/state.md"
+            grep -q "Phase 0 — Preflight" "$sandbox/.app-builder/state.md"
+
+            if grep -R -nE '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}' "$sandbox/.app-builder" "$sandbox/docs"; then
+              echo "Sono rimasti placeholder non renderizzati in $mode" >&2
+              exit 1
+            fi
+            if grep -R -nE 'â€“|â€”|Ã.|ï»¿' "$sandbox/.app-builder" "$sandbox/docs"; then
+              echo "Trovato testo UTF-8 corrotto in $mode" >&2
+              exit 1
+            fi
+
+            python - "$sandbox/.app-builder/config.json" "$mode" <<'PY'
+          import json, pathlib, sys
+          config = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8-sig"))
+          expected = sys.argv[2]
+          assert config["project"]["mode"] == expected
+          assert config["project"]["stateOwner"] == "current-session"
+          assert config["workflow"]["mode"] == "auto"
+          assert config["workflow"]["twoChats"] is False
+          assert config["workflow"]["designChat"] is None
+          assert config["workflow"]["developmentChat"] is None
+          PY
+
+            bash scripts/doctor.sh --project "$sandbox" --mode "$mode" --output .app-builder/doctor-report.md
+            grep -q "# App Builder Doctor" "$sandbox/.app-builder/doctor-report.md"
+          done
+
           bash scripts/verify-integrity.sh "$GITHUB_WORKSPACE"
 
   windows:
-    name: Windows PowerShell smoke test
+    name: Windows PowerShell three-mode and UTF-8 smoke test
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
@@ -100,27 +128,50 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test PowerShell install, init, Doctor and integrity
+      - name: Smoke test PowerShell install, three modes, Doctor and integrity
         shell: pwsh
         run: |
           $repo = $env:GITHUB_WORKSPACE
-          $sandbox = Join-Path $env:RUNNER_TEMP "luna-smoke-$([guid]::NewGuid())"
-          New-Item -ItemType Directory -Force -Path $sandbox | Out-Null
+          $root = Join-Path $env:RUNNER_TEMP "luna-smoke-$([guid]::NewGuid())"
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
           try {
-            & (Join-Path $repo "scripts/install.ps1") -Scope Project -ProjectPath $sandbox
-            & (Join-Path $repo "scripts/init-project.ps1") -ProjectName "App di prova" -Mode personal -ProjectPath $sandbox
-            if (-not (Test-Path (Join-Path $sandbox ".agents/skills/app-builder/SKILL.md"))) { throw "Skill non installata" }
-            if (-not (Test-Path (Join-Path $sandbox ".app-builder/state.md"))) { throw "Stato non creato" }
-            if (-not (Test-Path (Join-Path $sandbox "docs/PROJECT_VISION.md"))) { throw "Documenti non creati" }
-            $rendered = Get-ChildItem (Join-Path $sandbox ".app-builder"), (Join-Path $sandbox "docs") -Recurse -File |
-              Select-String -Pattern '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}'
-            if ($rendered) { throw "Sono rimasti placeholder non renderizzati" }
-            & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $sandbox -Mode personal -OutputPath ".app-builder/doctor-report.md"
-            if (-not (Select-String -Path (Join-Path $sandbox ".app-builder/doctor-report.md") -Pattern "# App Builder Doctor" -Quiet)) {
-              throw "Report Doctor non valido"
+            foreach ($mode in @("personal", "prototype", "publication")) {
+              $sandbox = Join-Path $root $mode
+              New-Item -ItemType Directory -Force -Path $sandbox | Out-Null
+              & (Join-Path $repo "scripts/install.ps1") -Scope Project -ProjectPath $sandbox
+              & (Join-Path $repo "scripts/init-project.ps1") -ProjectName "Test $mode" -Mode $mode -ProjectPath $sandbox
+
+              $skillPath = Join-Path $sandbox ".agents/skills/app-builder/SKILL.md"
+              $statePath = Join-Path $sandbox ".app-builder/state.md"
+              $configPath = Join-Path $sandbox ".app-builder/config.json"
+              if (-not (Test-Path $skillPath)) { throw "Skill non installata in $mode" }
+              if (-not (Test-Path $statePath)) { throw "Stato non creato in $mode" }
+              if (-not (Test-Path (Join-Path $sandbox "docs/PROJECT_VISION.md"))) { throw "Documenti non creati in $mode" }
+
+              $state = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8
+              if ($state -notmatch "Project mode: $mode") { throw "Modalità non renderizzata in $mode" }
+              if ($state -notmatch "State owner: current session") { throw "State owner non neutrale in $mode" }
+              if ($state -notmatch "Phase 0 — Preflight") { throw "Trattino UTF-8 non preservato in $mode" }
+              if ($state -match "â€“|â€”|Ã.|ï»¿") { throw "Testo UTF-8 corrotto in $mode" }
+
+              $config = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
+              if ($config.project.mode -ne $mode) { throw "Config mode errato in $mode" }
+              if ($config.project.stateOwner -ne "current-session") { throw "Config stateOwner errato in $mode" }
+              if ($config.workflow.mode -ne "auto" -or $config.workflow.twoChats -ne $false) { throw "Workflow default errato in $mode" }
+              if ($null -ne $config.workflow.designChat -or $null -ne $config.workflow.developmentChat) { throw "Chat precreate in $mode" }
+
+              $rendered = Get-ChildItem (Join-Path $sandbox ".app-builder"), (Join-Path $sandbox "docs") -Recurse -File |
+                Select-String -Pattern '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}'
+              if ($rendered) { throw "Sono rimasti placeholder non renderizzati in $mode" }
+
+              & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $sandbox -Mode $mode -OutputPath ".app-builder/doctor-report.md"
+              if (-not (Select-String -Path (Join-Path $sandbox ".app-builder/doctor-report.md") -Pattern "# App Builder Doctor" -Quiet)) {
+                throw "Report Doctor non valido in $mode"
+              }
             }
+
             & (Join-Path $repo "scripts/verify-integrity.ps1") -RootPath $repo
           }
           finally {
-            Remove-Item $sandbox -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
           }
