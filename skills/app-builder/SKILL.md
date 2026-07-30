@@ -92,9 +92,9 @@ Non risolvere silenziosamente un conflitto materiale. Registralo e fai una doman
 
 Leggi `references/project-modes.md` e registra `project_mode`.
 
-- **Personale:** niente store o infrastruttura inutile; dati locali quando bastano.
-- **Prototipo:** prodotto testabile e condivisibile, con rigore proporzionato.
-- **Pubblicazione:** ciclo completo, ambienti separati, privacy, sicurezza, beta e store.
+- **Personale:** niente store o infrastruttura inutile; dati locali quando bastano; una sola chat per default.
+- **Prototipo:** prodotto testabile e condivisibile, con rigore proporzionato; due chat solo se utili.
+- **Pubblicazione:** ciclo completo, ambienti separati, privacy, sicurezza, beta e store; due chat consigliate per progetti non banali.
 
 La modalità riduce o amplia il percorso, ma non autorizza scorciatoie pericolose.
 
@@ -154,8 +154,10 @@ release pubblica quando disponibile e proporzionata.
 
 ## Due chat Design e Sviluppo
 
-Quando l'utente usa un Progetto ChatGPT o task separati, leggi `references/chat-workflow.md` e
-invoca `$app-builder-handoff`.
+Quando il progetto beneficia davvero di task separati, leggi `references/chat-workflow.md` e
+invoca `$app-builder-handoff`. Non attivare due chat automaticamente: in modalità personale la
+scelta predefinita è una sola sessione; prototipo e pubblicazione aumentano il coordinamento solo
+quando UI e sviluppo hanno lavoro materiale separato.
 
 - **Design – UI [Nome progetto]** possiede concept, UX, brand e specifiche.
 - **Sviluppo – Frontend, backend e database [Nome progetto]** possiede codice, stato centrale,
@@ -177,6 +179,7 @@ Per ogni fase o slice:
 7. **Verifica** con prove ripetibili.
 8. **Mostra il gate**: fatto, non fatto, rischi, prossimo passo.
 9. **Persisti** stato e handoff.
+10. **Rileggi** le sezioni modificate prima di affermare che una decisione è stata registrata.
 
 Se l'utente dice “decidi tu”, scegli l'opzione più coerente, registra l'assunzione e continua
 solo se la scelta è reversibile.
@@ -203,12 +206,16 @@ A fine sessione assicurati che siano veri:
 
 - fase e slice correnti;
 - decisioni confermate;
+- esclusioni confermate riportate anche in `Scope > Explicitly excluded`;
+- piattaforme attuali distinte dalle possibilità future dello stack;
+- campi dipendenti aggiornati e placeholder ormai superati rimossi;
 - artefatti prodotti;
 - comandi/test realmente eseguiti;
 - controlli non eseguiti;
 - rischi e blocker;
 - prossimo passo singolo e concreto.
 
-Una fase è completa soltanto quando il gate contiene evidenza sufficiente e le aree applicabili
+Per una modalità personale, marca esplicitamente `not_applicable` le aree pubbliche escluse invece
+di lasciarle tutte `pending`. Una fase è completa soltanto quando il gate contiene evidenza sufficiente e le aree applicabili
 della mappa end-to-end sono chiuse o assegnate. “Dovrebbe funzionare” non è evidenza, è una frase
 che di solito precede una serata rovinata.
