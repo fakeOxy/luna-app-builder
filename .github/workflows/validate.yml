@@ -152,7 +152,8 @@ jobs:
               if ($state -notmatch "Project mode: $mode") { throw "Modalità non renderizzata in $mode" }
               if ($state -notmatch "State owner: current session") { throw "State owner non neutrale in $mode" }
               if ($state -notmatch "Phase 0 — Preflight") { throw "Trattino UTF-8 non preservato in $mode" }
-              if ($state -match "â€“|â€”|Ã.|ï»¿") { throw "Testo UTF-8 corrotto in $mode" }
+              $badUtf8Prefixes = @([char]0x00E2, [char]0x00C3, [char]0x00EF)
+              if ($badUtf8Prefixes | Where-Object { $state.Contains([string]$_) }) { throw "Testo UTF-8 corrotto in $mode" }
 
               $config = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
               if ($config.project.mode -ne $mode) { throw "Config mode errato in $mode" }
