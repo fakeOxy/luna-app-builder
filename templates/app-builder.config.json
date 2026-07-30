@@ -10,12 +10,14 @@
     "name": "{PROJECT_NAME}",
     "mode": "{PROJECT_MODE}",
     "platforms": [],
-    "stateOwner": "Sviluppo – Frontend, backend e database {PROJECT_NAME}"
+    "stateOwner": "current-session"
   },
   "workflow": {
-    "twoChats": true,
-    "designChat": "Design – UI {PROJECT_NAME}",
-    "developmentChat": "Sviluppo – Frontend, backend e database {PROJECT_NAME}"
+    "mode": "auto",
+    "twoChats": false,
+    "designChat": null,
+    "developmentChat": null,
+    "rule": "personal=single by default; prototype=conditional; publication=two chats recommended when design and development run separately"
   },
   "integrations": {
     "expo": "auto",
