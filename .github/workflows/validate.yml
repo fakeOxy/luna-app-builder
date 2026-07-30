@@ -24,8 +24,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout
+      - name: Checkout branch head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,17 +37,20 @@ jobs:
       - name: Generate deterministic integrity manifest
         run: python scripts/generate_integrity_manifest.py
 
-      - name: Commit refreshed manifest on feature branches
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
+      - name: Commit refreshed manifest on repository branches
+        if: >-
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')) ||
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         shell: bash
         run: |
           set -euo pipefail
           if ! git diff --quiet -- integrity-manifest.json; then
+            branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add integrity-manifest.json
             git commit -m "chore: refresh integrity manifest"
-            git push
+            git push origin "HEAD:$branch"
           fi
 
       - name: Install validator dependency
@@ -135,8 +140,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout
+      - name: Checkout branch head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
