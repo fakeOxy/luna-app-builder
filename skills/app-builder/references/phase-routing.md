@@ -5,7 +5,8 @@ Le disponibilità cambiano tra sessioni: non assumere che una cartella locale ra
 
 | Bisogno | Specialista primario | Aggiunte | Regola |
 |---|---|---|---|
-| Idea, MVP e percorso | `$app-builder` | Ricerca pubblica aggiornata quando serve | Luna possiede la sintesi e il gate |
+| Problema, utenti, alternative e prove | `$app-product-discovery` | `$app-builder` per sintesi e gate; ricerca pubblica aggiornata | Profondità proporzionata a personale, prototipo o pubblicazione |
+| MVP, esclusioni e percorso | `$app-builder` | output della discovery | Non avviare lo scaffold prima del gate, salvo spike tecnico esplicitamente approvato |
 | Brand da zero | `build-a-brand` | `brand`; `design` per asset | Non attivarli tutti per sport |
 | UX, flussi e audit | `ui-ux-pro-max` | `$app-builder` per requisiti | Uno style database non è validazione utente |
 | Token e componenti | `design-system` | UX review | I token non sono codice finito |
