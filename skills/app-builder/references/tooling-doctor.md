@@ -17,6 +17,19 @@ un plugin sia autenticato, autorizzato o caricato nella sessione corrente.
 - account/permessi necessari;
 - stato Expo, Supabase, Codex Security, GitHub e store in base alla modalità.
 
+## Verifica prima dell'installazione
+
+Prima di proporre una nuova installazione per un comando dichiarato mancante:
+
+1. esegui un controllo diretto nella shell corrente (`Get-Command`/`where.exe` su Windows,
+   `command -v` su macOS/Linux);
+2. prova una lettura innocua della versione;
+3. confronta il risultato con il report Doctor;
+4. se il comando funziona, aggiorna lo stato a `ready` e usa l'installazione esistente;
+5. chiedi consenso soltanto se la seconda verifica fallisce ancora.
+
+Non usare un report vecchio o un falso negativo per reinstallare software già funzionante.
+
 ## Catalogo approvato
 
 ### Expo ufficiale
