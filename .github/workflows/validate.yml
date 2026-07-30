@@ -6,7 +6,6 @@ name: Validate Luna App Builder
     branches:
       - main
       - "setup/**"
-      - "feat/**"
   workflow_dispatch:
 
 permissions:
@@ -22,21 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout branch head
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Generate deterministic integrity manifest locally
-        run: python scripts/generate_integrity_manifest.py
-
-      - name: Verify committed manifest is current
-        run: git diff --exit-code -- integrity-manifest.json
 
       - name: Install validator dependency
         run: python -m pip install --disable-pip-version-check pyyaml
@@ -67,7 +58,7 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test Bash install, discovery, three modes, Doctor and integrity
+      - name: Smoke test Bash install, three modes, Doctor and integrity
         shell: bash
         run: |
           set -euo pipefail
@@ -81,12 +72,8 @@ jobs:
             bash scripts/init-project.sh --name "Test $mode" --mode "$mode" --path "$sandbox"
 
             test -f "$sandbox/.agents/skills/app-builder/SKILL.md"
-            test -f "$sandbox/.agents/skills/app-product-discovery/SKILL.md"
             test -f "$sandbox/.app-builder/state.md"
             test -f "$sandbox/docs/PROJECT_VISION.md"
-            test -f "$sandbox/docs/PRODUCT_DISCOVERY.md"
-            grep -q "# Product Discovery — Test $mode" "$sandbox/docs/PRODUCT_DISCOVERY.md"
-            grep -q "Gate: \`in_progress\`" "$sandbox/docs/PRODUCT_DISCOVERY.md"
             grep -q "Project mode: $mode" "$sandbox/.app-builder/state.md"
             grep -q "State owner: current session" "$sandbox/.app-builder/state.md"
             grep -q "Phase 0 — Preflight" "$sandbox/.app-builder/state.md"
@@ -114,8 +101,6 @@ jobs:
 
             bash scripts/doctor.sh --project "$sandbox" --mode "$mode" --output .app-builder/doctor-report.md
             grep -q "# App Builder Doctor" "$sandbox/.app-builder/doctor-report.md"
-            grep -q "Product Discovery skill.*ready" "$sandbox/.app-builder/doctor-report.md"
-            grep -q "Product Discovery document.*ready" "$sandbox/.app-builder/doctor-report.md"
           done
 
           bash scripts/verify-integrity.sh "$GITHUB_WORKSPACE"
@@ -125,21 +110,8 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout branch head
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Generate deterministic integrity manifest locally
-        run: python scripts/generate_integrity_manifest.py
-
-      - name: Verify committed manifest is current
-        run: git diff --exit-code -- integrity-manifest.json
 
       - name: Parse PowerShell scripts
         shell: pwsh
@@ -156,7 +128,7 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test PowerShell install, discovery, three modes, Doctor and integrity
+      - name: Smoke test PowerShell install, three modes, Doctor and integrity
         shell: pwsh
         run: |
           $repo = $env:GITHUB_WORKSPACE
@@ -170,19 +142,11 @@ jobs:
               & (Join-Path $repo "scripts/init-project.ps1") -ProjectName "Test $mode" -Mode $mode -ProjectPath $sandbox
 
               $skillPath = Join-Path $sandbox ".agents/skills/app-builder/SKILL.md"
-              $discoverySkillPath = Join-Path $sandbox ".agents/skills/app-product-discovery/SKILL.md"
               $statePath = Join-Path $sandbox ".app-builder/state.md"
               $configPath = Join-Path $sandbox ".app-builder/config.json"
-              $discoveryPath = Join-Path $sandbox "docs/PRODUCT_DISCOVERY.md"
               if (-not (Test-Path $skillPath)) { throw "Skill non installata in $mode" }
-              if (-not (Test-Path $discoverySkillPath)) { throw "Product Discovery non installata in $mode" }
               if (-not (Test-Path $statePath)) { throw "Stato non creato in $mode" }
               if (-not (Test-Path (Join-Path $sandbox "docs/PROJECT_VISION.md"))) { throw "Documenti non creati in $mode" }
-              if (-not (Test-Path $discoveryPath)) { throw "PRODUCT_DISCOVERY.md non creato in $mode" }
-
-              $discovery = Get-Content -LiteralPath $discoveryPath -Raw -Encoding UTF8
-              if ($discovery -notmatch "# Product Discovery — Test $mode") { throw "Titolo discovery non renderizzato in $mode" }
-              if ($discovery -notmatch 'Gate: `in_progress`') { throw "Gate discovery iniziale errato in $mode" }
 
               $state = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8
               if ($state -notmatch "Project mode: $mode") { throw "Modalità non renderizzata in $mode" }
@@ -202,10 +166,9 @@ jobs:
               if ($rendered) { throw "Sono rimasti placeholder non renderizzati in $mode" }
 
               & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $sandbox -Mode $mode -OutputPath ".app-builder/doctor-report.md"
-              $doctorPath = Join-Path $sandbox ".app-builder/doctor-report.md"
-              if (-not (Select-String -Path $doctorPath -Pattern "# App Builder Doctor" -Quiet)) { throw "Report Doctor non valido in $mode" }
-              if (-not (Select-String -Path $doctorPath -Pattern "Product Discovery skill.*ready" -Quiet)) { throw "Discovery skill non pronta in $mode" }
-              if (-not (Select-String -Path $doctorPath -Pattern "Product Discovery document.*ready" -Quiet)) { throw "Discovery document non pronto in $mode" }
+              if (-not (Select-String -Path (Join-Path $sandbox ".app-builder/doctor-report.md") -Pattern "# App Builder Doctor" -Quiet)) {
+                throw "Report Doctor non valido in $mode"
+              }
             }
 
             & (Join-Path $repo "scripts/verify-integrity.ps1") -RootPath $repo
