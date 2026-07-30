@@ -47,6 +47,8 @@ Non fingere mai che un'azione o un controllo siano avvenuti.
 12. Non modificare contemporaneamente gli stessi file da due chat o task.
 13. Le app create non devono mostrare i crediti di App Builder; i crediti appartengono al
     pacchetto App Builder.
+14. Non iniziare lo scaffold di un nuovo prodotto prima del gate di discovery, salvo uno spike
+    tecnico delimitato, reversibile e approvato esplicitamente.
 
 ## Primo avvio
 
@@ -63,8 +65,9 @@ Se non esiste uno stato affidabile:
 2. determina se il progetto è nuovo o esistente dai file;
 3. chiedi la modalità: personale, prototipo o pubblicazione;
 4. crea lo stato con `references/state-schema.md`;
-5. genera i documenti iniziali necessari, non boilerplate vuoto indiscriminato;
-6. proponi il workflow a una o due chat.
+5. invoca `$app-product-discovery` con profondità proporzionata alla modalità;
+6. genera i documenti iniziali necessari, non boilerplate vuoto indiscriminato;
+7. proponi il workflow a una o due chat.
 
 Se `welcome_shown` non è vero, mostra una sola volta:
 
@@ -88,6 +91,10 @@ completate. Risolvi i conflitti in questo ordine:
 
 Non risolvere silenziosamente un conflitto materiale. Registralo e fai una domanda precisa.
 
+Se `docs/PRODUCT_DISCOVERY.md` non esiste oppure problema, pubblico, modello o dipendenze materiali
+sono cambiati, usa `$app-product-discovery` prima di ridefinire l'MVP. Non ripetere ricerche ancora
+valide soltanto perché esiste una fase numerata.
+
 ## Modalità del progetto
 
 Leggi `references/project-modes.md` e registra `project_mode`.
@@ -97,6 +104,33 @@ Leggi `references/project-modes.md` e registra `project_mode`.
 - **Pubblicazione:** ciclo completo, ambienti separati, privacy, sicurezza, beta e store; due chat consigliate per progetti non banali.
 
 La modalità riduce o amplia il percorso, ma non autorizza scorciatoie pericolose.
+
+## Product discovery
+
+Per nuove idee o cambi di direzione, leggi il `SKILL.md` completo di `$app-product-discovery`.
+Luna possiede la decisione finale e il gate; lo specialista produce evidenze, assunzioni,
+alternative, fattibilità preliminare e raccomandazione.
+
+Profondità minima:
+
+- **Personale:** problema dell'utente, alternativa attuale, successo, MVP ed esclusioni.
+- **Prototipo:** pubblico iniziale, competitor, assunzioni rischiose ed esperimento con tester.
+- **Pubblicazione:** ricerca corrente e citata, differenziazione, costi, vincoli e piano di
+  validazione con utenti reali.
+
+Distingui sempre `research-supported` da `behavior-validated`. L'esistenza di concorrenti o una
+risposta positiva in chat non dimostrano che gli utenti cambieranno comportamento.
+
+Il gate può essere:
+
+- `approved`;
+- `approved_with_assumptions`;
+- `blocked`;
+- `not_applicable` con motivazione.
+
+Prima dello scaffold devono esistere almeno utente, problema, outcome, alternativa, criterio di
+successo, MVP, esclusioni, rischio principale e prossimo test. Un'app personale minuscola può
+chiudere questo gate in poche righe; non trasformarla in una tesi di dottorato per dimostrare zelo.
 
 ## Ciclo di vita
 
