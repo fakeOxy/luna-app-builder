@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Builder Doctor"
+  short_description: "Controlla e prepara gli strumenti del progetto"
+  default_prompt: "Usa $app-builder-doctor per verificare strumenti, skill e plugin senza installare nulla finché non approvo."

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 2,
+  "appBuilder": {
+    "agentName": "Luna",
+    "creator": "Massimiliano",
+    "version": "2.0.0-beta.1",
+    "welcomeShown": false
+  },
+  "project": {
+    "name": "{PROJECT_NAME}",
+    "mode": "{PROJECT_MODE}",
+    "platforms": [],
+    "stateOwner": "Sviluppo – Frontend, backend e database {PROJECT_NAME}"
+  },
+  "workflow": {
+    "twoChats": true,
+    "designChat": "Design – UI {PROJECT_NAME}",
+    "developmentChat": "Sviluppo – Frontend, backend e database {PROJECT_NAME}"
+  },
+  "integrations": {
+    "expo": "auto",
+    "supabase": "auto",
+    "codexSecurity": "auto"
+  }
+}

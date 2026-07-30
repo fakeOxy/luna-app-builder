@@ -1,0 +1,31 @@
+{
+  "name": "luna-app-builder",
+  "version": "2.0.0-beta.1",
+  "description": "Luna guida la creazione di app personali, prototipi e prodotti pubblicabili dall'idea alla manutenzione, coordinando skill e plugin specialistici.",
+  "author": {
+    "name": "Massimiliano"
+  },
+  "license": "LicenseRef-Luna-App-Builder-Personal-Use-1.0",
+  "keywords": [
+    "app-builder",
+    "mobile",
+    "web",
+    "expo",
+    "supabase",
+    "product",
+    "ux",
+    "security",
+    "release"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Luna App Builder",
+    "shortDescription": "Dall'idea a un'app verificata, un passo alla volta",
+    "longDescription": "Un processo guidato e riutilizzabile che accompagna anche utenti senza esperienza tecnica attraverso prodotto, brand, UX, design, sviluppo, dati, sicurezza, test, beta, store, pubblicazione e manutenzione.",
+    "developerName": "Massimiliano",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": "Usa $app-builder. Sono all'inizio oppure voglio riprendere questo progetto: controlla lo stato, verifica gli strumenti e guidami nel prossimo passo concreto.",
+    "brandColor": "#6256D9"
+  }
+}

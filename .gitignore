@@ -1,0 +1,27 @@
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Local tests and generated reports
+.app-builder/doctor-report.md
+*.log
+.tmp/
+tmp/
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+*.p8
+*.p12
+*.jks
+*.keystore
+
+# Node / Python artifacts used only while testing scripts
+node_modules/
+__pycache__/
+*.pyc

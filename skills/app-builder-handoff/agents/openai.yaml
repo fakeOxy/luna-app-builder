@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Builder Handoff"
+  short_description: "Coordina Design e Sviluppo senza conflitti"
+  default_prompt: "Usa $app-builder-handoff per preparare o aggiornare le due chat Design e Sviluppo e il passaggio della slice corrente."

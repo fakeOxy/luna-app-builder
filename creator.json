@@ -1,0 +1,14 @@
+{
+  "product": "App Builder",
+  "pluginName": "Luna App Builder",
+  "assistantName": "Luna",
+  "creator": "Massimiliano",
+  "attribution": "App Builder è stato ideato e creato da Massimiliano.",
+  "version": "2.0.0-beta.1",
+  "releaseDate": "2026-07-30",
+  "officialRepository": "https://github.com/fakeOxy/luna-app-builder",
+  "integrity": {
+    "manifest": "integrity-manifest.json",
+    "note": "I checksum rilevano modifiche rispetto a questa copia. Una firma crittografica della release richiede una chiave privata conservata dal creatore."
+  }
+}
