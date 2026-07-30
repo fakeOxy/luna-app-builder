@@ -1,0 +1,4 @@
+interface:
+  display_name: "Informazioni su App Builder"
+  short_description: "Crediti, versione e integrità"
+  default_prompt: "Usa $app-builder-about e mostrami creatore, versione, licenza e risultato della verifica di integrità."

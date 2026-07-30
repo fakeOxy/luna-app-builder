@@ -1,0 +1,4 @@
+interface:
+  display_name: "Luna App Builder"
+  short_description: "Guida un'app dall'idea alla manutenzione"
+  default_prompt: "Usa $app-builder, controlla lo stato reale del progetto e guidami nel prossimo passo verificabile con un linguaggio semplice."

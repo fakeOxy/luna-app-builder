@@ -1,0 +1,22 @@
+LUNA APP BUILDER PERSONAL USE LICENSE 1.0
+
+Copyright (c) 2026 Massimiliano. Tutti i diritti riservati.
+
+È concessa gratuitamente una licenza personale, educativa e interna per usare e modificare
+Luna App Builder, alle seguenti condizioni:
+
+1. I file NOTICE, CREDITS.md, creator.json e questa licenza devono rimanere nella distribuzione.
+2. L'attribuzione "App Builder è stato ideato e creato da Massimiliano" non può essere rimossa
+   dalle copie distribuite di App Builder.
+3. Le app create con App Builder non sono obbligate a mostrare tale attribuzione.
+4. Non è consentito vendere, sublicenziare, rinominare come propria creazione o redistribuire
+   pubblicamente App Builder senza autorizzazione scritta del titolare.
+5. Le modifiche per uso personale o interno sono consentite, ma una copia modificata deve essere
+   indicata come tale e non può essere presentata come release ufficiale.
+6. Skill, plugin, librerie e servizi di terze parti restano soggetti alle rispettive licenze e
+   condizioni. Questa licenza non concede diritti su componenti esterni.
+7. IL SOFTWARE È FORNITO "COSÌ COM'È", SENZA GARANZIE. IL TITOLARE NON È RESPONSABILE PER DANNI,
+   PERDITA DI DATI, COSTI, RIFIUTI DEGLI STORE O PROBLEMI DERIVANTI DALL'USO.
+
+Questa è una licenza personalizzata pensata per condivisione personale e valutazione. Prima di
+una distribuzione pubblica o commerciale è consigliata una revisione legale professionale.
