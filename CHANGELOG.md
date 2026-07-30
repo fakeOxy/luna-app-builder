@@ -11,3 +11,7 @@
 - Aggiunge privacy, aspetti legali, backup, osservabilità, beta e release gate.
 - Aggiunge crediti, manifesto di integrità e licenza per uso personale.
 - Aggiunge mappa di copertura end-to-end, moduli internazionali/enterprise/hardware e script cross-platform verificati.
+- Corregge la lettura/scrittura UTF-8 dell'inizializzatore PowerShell.
+- Imposta una sola chat come default e attiva il workflow Design/Sviluppo solo quando giustificato.
+- Rafforza la persistenza di esclusioni, piattaforme correnti e campi dipendenti nello stato.
+- Estende gli smoke test alle modalità personale, prototipo e pubblicazione su Linux e Windows.
