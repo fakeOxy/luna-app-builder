@@ -21,7 +21,7 @@ Le disponibilità cambiano tra sessioni: non assumere che una cartella locale ra
 | Build/submit mobile | plugin Expo/EAS | strumenti store | Upload non equivale a pubblicazione completa |
 | Pagamenti | documentazione ufficiale + SDK scelto | security/store review | Definire prodotto prima del codice |
 | Store compliance | skill App Store/Play aggiornata quando disponibile | Codex Security per codice | Policy store non è security scan |
-| Screenshot store | `app-store-screens` | brand kit | Solo schermate vere e correnti |
+| Screenshot store | `app-store-screenshots` | brand kit | Solo schermate vere e correnti; installazione community con consenso |
 | ASO e lancio | skill ASO selezionate | analytics/brand | Vicino al lancio, non al wireframe |
 | OpenAI API | `openai-docs` | server-side + cost controls | Fonti ufficiali e segreti fuori dal client |
 
