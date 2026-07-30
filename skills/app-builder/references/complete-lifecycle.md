@@ -3,19 +3,30 @@
 ## Fase 0 — Preflight, modalità e fattibilità
 
 Verifica progetto esistente, strumenti, skill, account richiesti, piattaforme, costi minimi,
-vincoli hardware, API e servizi. Seleziona personale/prototipo/pubblicazione.
+vincoli hardware, API e servizi. Seleziona personale/prototipo/pubblicazione e prepara il livello
+di discovery proporzionato.
 
-Artefatti: doctor report, modalità, capability matrix iniziale, mappa dei costi e prerequisiti.
-Gate: il percorso è tecnicamente e finanziariamente plausibile; limiti noti.
+Artefatti: doctor report, modalità, capability matrix iniziale, mappa dei costi e prerequisiti,
+`docs/PRODUCT_DISCOVERY.md` inizializzato.
+Gate: il percorso è tecnicamente e finanziariamente plausibile; limiti noti; discovery pronta.
 
-## Fase 1 — Prodotto, utenti e MVP
+## Fase 1 — Product discovery, utenti e MVP
 
-Definisci problema, utente, alternativa attuale, valore, casi d'uso, funzioni, esclusioni, modello
-di business, metriche, rischi e piano di validazione. Non progettare quaranta schermate prima di
-sapere perché esistono.
+Invoca `$app-product-discovery`. Definisci problema, utente, alternativa attuale, valore, casi
+d'uso, evidenze, assunzioni, concorrenti pertinenti, funzioni, esclusioni, modello di business,
+metriche, rischi e piano di validazione. Non progettare quaranta schermate prima di sapere perché
+esistono.
 
-Artefatti: vision, requirements, inventario funzionale, MVP e roadmap.
-Gate: problema, utente, piattaforme e confine MVP approvati.
+La profondità dipende dalla modalità:
+
+- personale: problema dell'utente, alternativa, successo, MVP, esclusioni e rischio principale;
+- prototipo: pubblico iniziale, alternative, assunzioni e test con utenti o tester;
+- pubblicazione: ricerca corrente e citata, differenziazione, costi, vincoli e validazione diretta.
+
+Artefatti: product discovery, vision, requirements, inventario funzionale, MVP e roadmap.
+Gate: problema, utente, outcome, alternativa, successo, prove disponibili, assunzioni, piattaforme
+e confine MVP approvati oppure esplicitamente approvati con assunzioni. Ricerca documentale non va
+chiamata validazione del comportamento.
 
 ## Fase 2 — Brand e identità
 
@@ -76,8 +87,11 @@ critici non sono accettabili per release pubbliche.
 Build interna, tester reali, canali beta, feedback strutturato, crash, metriche di attivazione,
 regressioni e iterazioni. Dati beta separati dalla produzione quando necessario.
 
-Artefatti: beta plan, feedback register, release candidate.
-Gate: percorso principale completato da tester e blocker chiusi.
+Confronta i risultati beta con le assunzioni e le soglie scritte nel Product Discovery. Aggiorna la
+raccomandazione quando il comportamento reale contraddice la ricerca iniziale.
+
+Artefatti: beta plan, feedback register, release candidate, discovery aggiornata quando serve.
+Gate: percorso principale completato da tester, assunzioni principali riesaminate e blocker chiusi.
 
 ## Fase 9 — Monetizzazione, analytics e store readiness
 
