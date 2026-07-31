@@ -1,0 +1,4 @@
+interface:
+  display_name: "Luna Product Discovery"
+  short_description: "Valida problema, utenti, prove e rischi prima di costruire"
+  default_prompt: "Usa $app-product-discovery per analizzare questa idea di app, separare fatti e ipotesi, raccogliere soltanto le prove necessarie e preparare un gate go, pivot, hold o stop."

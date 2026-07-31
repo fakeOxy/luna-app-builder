@@ -37,6 +37,16 @@
 - Current alternative: da definire
 - Success metric: da definire
 
+## Product discovery
+- Gate status: in_progress
+- Recommendation: pending
+- Confidence: low
+- Strongest evidence: none
+- Main open assumption: da definire
+- Next validation experiment: da definire
+- Evidence last reviewed: never
+- Detailed artifact: `docs/PRODUCT_DISCOVERY.md`
+
 ## Scope
 ### MVP
 - da definire
@@ -82,8 +92,8 @@
 ## Phase status
 | Phase | Status | Deliverable | Gate evidence |
 |---|---|---|---|
-| 0 Preflight and feasibility | in_progress | doctor report e modalità | |
-| 1 Product and MVP | pending | | |
+| 0 Preflight and feasibility | in_progress | doctor report, modalità e avvio discovery | |
+| 1 Product and MVP | pending | product discovery, vision e requisiti MVP | |
 | 2 Brand | pending | | |
 | 3 UX and accessibility | pending | | |
 | 4 Design system and UI | pending | | |
@@ -103,11 +113,12 @@
 - Implementation: pending
 - Verification: pending
 - Security check: pending
-- Acceptance criterion: modalità scelta, doctor completato e idea iniziale registrata
+- Acceptance criterion: modalità scelta, Doctor completato e discovery pronta a iniziare
 - Status: in_progress
 
 ## Source of truth
 - Detailed tracker: `.app-builder/state.md`
+- Product discovery: `docs/PRODUCT_DISCOVERY.md`
 - Product/UX specs: `docs/`
 - Design system: `design/`
 - Implementation truth: codice e test riproducibili
@@ -116,7 +127,7 @@
 ## End-to-end coverage
 | Area | Status | Evidence or limitation | Owner |
 |---|---|---|---|
-| Strategy and feasibility | covered_pending | | |
+| Strategy and feasibility | covered_pending | `docs/PRODUCT_DISCOVERY.md` | current session |
 | Product and experience | covered_pending | | |
 | Brand and design | covered_pending | | |
 | Architecture and data | covered_pending | | |
@@ -128,6 +139,7 @@
 ## Artifact index
 | Artifact | Path/URL | Status |
 |---|---|---|
+| Product discovery | `docs/PRODUCT_DISCOVERY.md` | in_progress |
 
 ## Active handoffs
 | Owner | Output | Allowed paths | Status |
@@ -135,11 +147,12 @@
 
 ## Risks and blockers
 - Doctor non ancora completato.
+- Problema, utente e prove non ancora verificati.
 
 ## Next interaction
-- Next decision: chiarire idea e modalità
-- Questions to ask: che problema risolve e per chi
-- Recommended action: eseguire `$app-builder-doctor`
+- Next decision: chiarire modalità, problema e utente iniziale
+- Questions to ask: quale problema concreto deve risolvere e per chi
+- Recommended action: eseguire `$app-builder-doctor`, poi `$app-product-discovery`
 
 ## Decision history
-- {DATE} — Progetto inizializzato con Luna App Builder.
+- {DATE} — Progetto inizializzato con Luna App Builder e Product Discovery pronta.

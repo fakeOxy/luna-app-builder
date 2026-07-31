@@ -62,6 +62,18 @@ for p in "$PROJECT_PATH/.agents/skills/app-builder/SKILL.md" "$HOME/.agents/skil
 done
 [[ -n "$AB" ]] && add_check "Luna App Builder" ready "$AB" "" || add_check "Luna App Builder" missing_required "skill non trovata" "Esegui scripts/install.sh."
 
+DISCOVERY=""
+for p in "$PROJECT_PATH/.agents/skills/app-product-discovery/SKILL.md" "$HOME/.agents/skills/app-product-discovery/SKILL.md" "$HOME/.codex/skills/app-product-discovery/SKILL.md"; do
+  [[ -f "$p" ]] && DISCOVERY="$p" && break
+done
+[[ -n "$DISCOVERY" ]] \
+  && add_check "Product Discovery skill" ready "$DISCOVERY" "" \
+  || add_check "Product Discovery skill" missing_required "app-product-discovery non trovata" "Reinstalla o aggiorna Luna App Builder dal repository ufficiale."
+
+[[ -f "$PROJECT_PATH/docs/PRODUCT_DISCOVERY.md" ]] \
+  && add_check "Product Discovery document" ready "docs/PRODUCT_DISCOVERY.md" "" \
+  || add_check "Product Discovery document" missing_optional "documento non ancora presente" "Inizializzalo con scripts/init-project.sh o crealo quando parte la discovery."
+
 PLUGIN_TEXT="$(plugin_inventory)"
 EXPO_DETECTED=false
 while IFS= read -r pkg; do

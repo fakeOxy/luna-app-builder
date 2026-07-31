@@ -46,6 +46,17 @@ $appBuilderPaths = @(
 $appBuilderFound = $appBuilderPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
 Add-Check "Luna App Builder" ($(if($appBuilderFound){"ready"}else{"missing_required"})), ($(if($appBuilderFound){$appBuilderFound}else{"skill non trovata nei path standard"})), "Esegui scripts/install.ps1 dal pacchetto App Builder."
 
+$discoveryPaths = @(
+  (Join-Path $ProjectPath ".agents/skills/app-product-discovery/SKILL.md"),
+  (Join-Path $HOME ".agents/skills/app-product-discovery/SKILL.md"),
+  (Join-Path $HOME ".codex/skills/app-product-discovery/SKILL.md")
+)
+$discoveryFound = $discoveryPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
+Add-Check "Product Discovery skill" ($(if($discoveryFound){"ready"}else{"missing_required"})), ($(if($discoveryFound){$discoveryFound}else{"app-product-discovery non trovata nei path standard"})), "Reinstalla o aggiorna Luna App Builder dal repository ufficiale."
+
+$discoveryDoc = Join-Path $ProjectPath "docs/PRODUCT_DISCOVERY.md"
+Add-Check "Product Discovery document" ($(if(Test-Path $discoveryDoc){"ready"}else{"missing_optional"})), ($(if(Test-Path $discoveryDoc){$discoveryDoc}else{"documento non ancora presente"})), "Inizializzalo con scripts/init-project.ps1 o crealo quando parte la discovery."
+
 $packageFiles = Get-ChildItem -Path $ProjectPath -Filter package.json -File -Recurse -ErrorAction SilentlyContinue |
   Where-Object { $_.FullName -notmatch "[\\/]node_modules[\\/]" } | Select-Object -First 20
 $expoDetected = $false

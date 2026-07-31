@@ -25,6 +25,7 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Delivery mode: guided | vertical_slices
 - Current slice:
 - State owner:
+- Workflow: single_chat | two_chat
 - Last updated:
 
 ## Feasibility and constraints
@@ -40,6 +41,16 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Problem:
 - Current alternative:
 - Success metric:
+
+## Product discovery
+- Gate status: in_progress | approved | approved_with_assumptions | blocked | not_applicable
+- Recommendation: pending | go | go_with_assumptions | pivot | hold | stop
+- Confidence: low | medium | high
+- Strongest evidence:
+- Main open assumption:
+- Next validation experiment:
+- Evidence last reviewed:
+- Detailed artifact: `docs/PRODUCT_DISCOVERY.md`
 
 ## Scope
 ### MVP
@@ -86,8 +97,8 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 ## Phase status
 | Phase | Status | Deliverable | Gate evidence |
 |---|---|---|---|
-| 0 Preflight and feasibility | pending | | |
-| 1 Product and MVP | pending | | |
+| 0 Preflight and feasibility | pending | doctor report, modalità e avvio discovery | |
+| 1 Product and MVP | pending | product discovery, vision e requisiti MVP | |
 | 2 Brand | pending | | |
 | 3 UX and accessibility | pending | | |
 | 4 Design system and UI | pending | | |
@@ -99,7 +110,8 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 | 10 Release | pending | | |
 | 11 Operations and maintenance | pending | | |
 
-Usa: pending, partial, in_progress, blocked, approved, deferred, not_applicable.
+Usa: pending, partial, in_progress, blocked, approved, approved_with_assumptions, deferred,
+not_applicable.
 
 ## Current delivery slice
 - ID and name:
@@ -114,6 +126,7 @@ Usa: pending, partial, in_progress, blocked, approved, deferred, not_applicable.
 
 ## Source of truth
 - Detailed tracker:
+- Product discovery: `docs/PRODUCT_DISCOVERY.md`
 - Product/UX specs:
 - Design system:
 - Implementation truth:
@@ -122,7 +135,7 @@ Usa: pending, partial, in_progress, blocked, approved, deferred, not_applicable.
 ## End-to-end coverage
 | Area | Status | Evidence or limitation | Owner |
 |---|---|---|---|
-| Strategy and feasibility | covered_pending | | |
+| Strategy and feasibility | covered_pending | `docs/PRODUCT_DISCOVERY.md` | |
 | Product and experience | covered_pending | | |
 | Brand and design | covered_pending | | |
 | Architecture and data | covered_pending | | |
@@ -134,6 +147,7 @@ Usa: pending, partial, in_progress, blocked, approved, deferred, not_applicable.
 ## Artifact index
 | Artifact | Path/URL | Status |
 |---|---|---|
+| Product discovery | `docs/PRODUCT_DISCOVERY.md` | in_progress |
 
 ## Active handoffs
 | Owner | Output | Allowed paths | Status |
@@ -150,6 +164,19 @@ Usa: pending, partial, in_progress, blocked, approved, deferred, not_applicable.
 ## Decision history
 - YYYY-MM-DD — ...
 ```
+
+## Regole del Product Discovery
+
+- `Gate status: approved` richiede utente, problema, outcome, alternativa, successo, MVP,
+  esclusioni, assunzioni, evidenze con limiti, fattibilità preliminare e prossimo test.
+- `approved_with_assumptions` nomina le assunzioni aperte e incorpora il loro test nel prossimo
+  investimento.
+- `Confidence` usa solo low, medium o high; non inventare percentuali senza un modello reale.
+- Ricerca documentale e competitor possono sostenere un'ipotesi, ma `behavior-validated` richiede
+  comportamento diretto di utenti pertinenti e una soglia definita prima del test.
+- Aggiorna `Evidence last reviewed` quando prezzi, policy, API o competitor vengono ricontrollati.
+- Non copiare l'intero documento di discovery nello stato: conserva qui decisione, prova più forte,
+  assunzione principale e prossimo esperimento.
 
 ## Regole di coerenza e persistenza
 
