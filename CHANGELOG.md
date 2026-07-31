@@ -9,15 +9,22 @@
 - Aggiunge `$app-copywriting` per microcopy, onboarding, errori, notifiche e contenuti store.
 - Aggiunge `$app-project-adoption` per innestare Luna nei progetti esistenti con ricognizione read-only.
 - Aggiunge `$app-security-orchestrator` con Codex Security primario e playbook community selettivi.
-- Porta le skill native da cinque a undici.
+- Aggiunge `$app-analytics-measurement` per outcome, eventi, funnel, baseline, soglie e privacy.
+- Porta le skill native da cinque a dodici.
 - Introduce routing autonomo: l'utente non deve conoscere o scegliere le skill.
-- Introduce bootstrap unico dopo consenso per PRD, UX, design, brand e copywriting.
+- Mantiene Luna come unica interfaccia e state owner; i ruoli esterni restano interni.
+- Introduce sei ruoli operativi: Market Analyst, Product Marketing, CTO, Support & Feedback, Data Analyst e Operations Lead.
+- Integra `find-skills` soltanto davanti a capability gap documentati e con verifica delle sorgenti.
+- Integra Superpowers come processo engineering per specifica, piano, TDD, debugging e verifica.
+- Introduce bootstrap unico dopo consenso per ricerca skill, engineering, PRD, UX, design, brand e copywriting.
+- Scarica e indicizza localmente il catalogo completo Marketing Skills con attivazione on demand.
 - Scarica e indicizza localmente il catalogo completo `Anthropic-Cybersecurity-Skills` senza attivare 817 trigger.
 - Classifica i playbook sicurezza come difensivi, dual-use, restricted o blocked.
 - Rileva automaticamente progetti `new` o `existing` durante inizializzazione e Doctor.
 - Preserva stack, file, dipendenze e convenzioni nei progetti esistenti.
-- Aggiunge template per brand, asset, accessibilità, copy e security plan.
-- Estende stato, lifecycle, routing, Doctor e test automatici a bootstrap, adozione e specialisti.
+- Aggiunge template per brand, asset, accessibilità, copy, measurement e security plan.
+- Estende stato, lifecycle, routing, Doctor e test automatici a ruoli, cataloghi, analytics, bootstrap e adozione.
+- Aggiunge test Linux e Windows per dodici skill, due cataloghi on demand, Find Skills, Superpowers e progetto esistente.
 
 ## 2.0.0-beta.1 — 2026-07-30
 
