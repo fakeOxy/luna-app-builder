@@ -2,12 +2,22 @@
 
 ## In sviluppo — 2.0.0-beta.2
 
-- Aggiunge `$app-product-discovery` come primo specialista nativo di Luna.
-- Introduce livelli di evidenza E0-E4 e decisioni `go`, `go_with_assumptions`, `pivot`, `hold` e `stop`.
-- Distingue ricerca documentale, osservazioni e validazione del comportamento reale.
-- Aggiunge `docs/PRODUCT_DISCOVERY.md` ai nuovi progetti.
-- Integra discovery nel primo avvio, nel routing, nel Doctor e nei test automatici.
-- Impedisce lo scaffold prematuro salvo spike tecnico delimitato e approvato.
+- Aggiunge `$app-product-discovery` con livelli E0-E4 e gate basato su prove.
+- Aggiunge `$app-requirements-mvp` per requisiti, MVP, esclusioni, acceptance criteria e prima slice.
+- Aggiunge `$app-ux-accessibility` per flussi, stati, error recovery e accessibilità verificabile.
+- Aggiunge `$app-brand-assets` per posizionamento, voce, sistema visivo e inventario asset.
+- Aggiunge `$app-copywriting` per microcopy, onboarding, errori, notifiche e contenuti store.
+- Aggiunge `$app-project-adoption` per innestare Luna nei progetti esistenti con ricognizione read-only.
+- Aggiunge `$app-security-orchestrator` con Codex Security primario e playbook community selettivi.
+- Porta le skill native da cinque a undici.
+- Introduce routing autonomo: l'utente non deve conoscere o scegliere le skill.
+- Introduce bootstrap unico dopo consenso per PRD, UX, design, brand e copywriting.
+- Scarica e indicizza localmente il catalogo completo `Anthropic-Cybersecurity-Skills` senza attivare 817 trigger.
+- Classifica i playbook sicurezza come difensivi, dual-use, restricted o blocked.
+- Rileva automaticamente progetti `new` o `existing` durante inizializzazione e Doctor.
+- Preserva stack, file, dipendenze e convenzioni nei progetti esistenti.
+- Aggiunge template per brand, asset, accessibilità, copy e security plan.
+- Estende stato, lifecycle, routing, Doctor e test automatici a bootstrap, adozione e specialisti.
 
 ## 2.0.0-beta.1 — 2026-07-30
 
@@ -19,7 +29,7 @@
 - Aggiunge workflow a due chat Design/Sviluppo con handoff persistenti.
 - Aggiunge privacy, aspetti legali, backup, osservabilità, beta e release gate.
 - Aggiunge crediti, manifesto di integrità e licenza per uso personale.
-- Aggiunge mappa di copertura end-to-end, moduli internazionali/enterprise/hardware e script cross-platform verificati.
+- Aggiunge mappa di copertura end-to-end e script cross-platform verificati.
 - Corregge la lettura/scrittura UTF-8 dell'inizializzatore PowerShell.
 - Imposta una sola chat come default e attiva il workflow Design/Sviluppo solo quando giustificato.
 - Rafforza la persistenza di esclusioni, piattaforme correnti e campi dipendenti nello stato.
