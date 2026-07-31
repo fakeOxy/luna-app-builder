@@ -13,25 +13,38 @@ Prima esecuzione:
 1. rileva se `.app-builder/specialists.json` esiste ed è attuale;
 2. mostra cosa verrà scaricato e dove;
 3. chiarisce che sono progetti community gratuiti e non garanzie professionali;
-4. chiede un unico consenso esplicito;
-5. esegue `scripts/bootstrap-specialists.mjs --project <root> --approved`;
-6. salva report e inventario;
-7. apre una nuova sessione soltanto se necessaria per far scoprire le skill installate.
+4. distingue skill gratuita da eventuali tool, API o crediti a pagamento richiesti dalla skill;
+5. chiede un unico consenso esplicito;
+6. esegue `scripts/bootstrap-specialists.mjs --project <root> --approved`;
+7. salva report e inventario;
+8. apre una nuova sessione soltanto se necessaria per far scoprire le skill installate.
 
-Il consenso al bootstrap non autorizza login, spese, Docker, scanner invasivi, upload di build o
-script di penetration testing. Questi richiedono consenso nel momento d'uso.
+Il consenso al bootstrap non autorizza login, spese, crediti Pika, Docker, scanner invasivi,
+upload di build o script di penetration testing. Questi richiedono consenso nel momento d'uso.
 
 ## Pacchetto iniziale
 
 | Ruolo | Sorgente | Uso |
 |---|---|---|
 | PRD strutturato | `jamesrochabrun/skills` → `prd-generator` | supporto a requirements |
-| UX/UI | `nextlevelbuilder/ui-ux-pro-max-skill` | pattern, palette, typography, UX |
+| UX/UI e design system | `nextlevelbuilder/ui-ux-pro-max-skill` | pattern, palette, typography, design e UX |
+| Brand | `Pika-Labs/Pika-Plugins` → `build-a-brand` | strategia e identità; servizi a pagamento mai automatici |
 | Critica e UX writing | `pbakaus/impeccable` | audit, interaction, copy in-app |
 | Marketing copy | `coreyhaines31/marketingskills` | copywriting, editing, positioning |
 | Security catalog | `mukul975/Anthropic-Cybersecurity-Skills` | playbook ricercabili on demand |
 
 Le skill native Luna restano proprietarie di stato, gate, routing e limiti.
+
+## Protezione del progetto
+
+Il bootstrap non modifica il `.gitignore` condiviso. In un repository Git aggiunge le cache locali
+di Luna a `.git/info/exclude`:
+
+- `.app-builder/vendor/`;
+- `.app-builder/security-catalog/`.
+
+Il registro usa percorsi relativi e non salva il percorso assoluto della macchina. In assenza di Git
+non modifica file di configurazione del progetto.
 
 ## Catalogo sicurezza
 
