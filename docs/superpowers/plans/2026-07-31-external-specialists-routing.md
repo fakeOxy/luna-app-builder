@@ -99,5 +99,5 @@
 ## Verifica automatica
 
 - RED: la CI ha fallito dopo l'introduzione dei controlli per le capacità mancanti.
-- GREEN: Linux e Windows hanno superato validatore, parsing, tre modalità, bootstrap dry-run, progetto esistente, Doctor e integrità sul commit `415a45214d55051bdca37e26129e6f934001a4fb`.
+- GREEN: Linux e Windows hanno superato validatore, parsing, tre modalità, bootstrap dry-run, progetto esistente, Doctor e integrità nella run `30664671279`.
 - Residuo manuale: bootstrap reale e routing conversazionale in una sessione Codex isolata.
