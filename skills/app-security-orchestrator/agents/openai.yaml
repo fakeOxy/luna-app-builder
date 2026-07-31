@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Security Orchestrator"
+  short_description: "Sicurezza proporzionata con Codex Security e playbook selettivi"
+  default_prompt: "Usa $app-security-orchestrator per classificare i rischi di questo progetto, scegliere il minimo set di controlli e playbook difensivi, validare i finding e bloccare procedure invasive non autorizzate."
