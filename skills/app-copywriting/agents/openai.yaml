@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Copywriting"
+  short_description: "Microcopy chiara, coerente e senza dark pattern"
+  default_prompt: "Usa $app-copywriting per scrivere o verificare copy in-app, onboarding, errori, stati vuoti, notifiche e contenuti store mantenendo voce e claim verificabili."
