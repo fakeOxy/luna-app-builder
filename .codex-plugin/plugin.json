@@ -1,7 +1,7 @@
 {
   "name": "luna-app-builder",
   "version": "2.0.0-beta.1",
-  "description": "Luna guida la creazione di app personali, prototipi e prodotti pubblicabili dall'idea alla manutenzione, coordinando skill e plugin specialistici.",
+  "description": "Luna crea, adotta ed evolve app con routing autonomo, specialisti di prodotto e design, sicurezza proporzionata e vertical slice verificabili.",
   "author": {
     "name": "Massimiliano"
   },
@@ -13,19 +13,23 @@
     "expo",
     "supabase",
     "product",
+    "requirements",
     "ux",
+    "accessibility",
+    "brand",
+    "copywriting",
     "security",
     "release"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Luna App Builder",
-    "shortDescription": "Dall'idea a un'app verificata, un passo alla volta",
-    "longDescription": "Un processo guidato e riutilizzabile che accompagna anche utenti senza esperienza tecnica attraverso prodotto, brand, UX, design, sviluppo, dati, sicurezza, test, beta, store, pubblicazione e manutenzione.",
+    "shortDescription": "Dall'idea o dal codice esistente a un'app verificata",
+    "longDescription": "Luna capisce autonomamente dove si trova il progetto, prepara gli specialisti dopo consenso, preserva stack e convenzioni esistenti e orchestra discovery, MVP, brand, UX, copy, sviluppo, sicurezza, test, store e manutenzione.",
     "developerName": "Massimiliano",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
-    "defaultPrompt": "Usa $app-builder. Sono all'inizio oppure voglio riprendere questo progetto: controlla lo stato, verifica gli strumenti e guidami nel prossimo passo concreto.",
+    "defaultPrompt": "Usa $app-builder. Capisci autonomamente se questo progetto è nuovo o esistente, verifica strumenti e stato, poi attiva il prossimo specialista necessario senza chiedermi di scegliere una skill.",
     "brandColor": "#6256D9"
   }
 }
