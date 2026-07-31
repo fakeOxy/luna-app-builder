@@ -1,0 +1,4 @@
+interface:
+  display_name: "App UX & Accessibility"
+  short_description: "Flussi chiari, stati completi e accessibilità verificabile"
+  default_prompt: "Usa $app-ux-accessibility per progettare o verificare flussi, navigazione, stati critici e accessibilità senza ridisegnare ciò che è fuori scope."
