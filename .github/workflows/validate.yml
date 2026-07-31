@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   linux:
-    name: Linux validation, autonomy and three-mode smoke test
+    name: Linux validation, roles and three-mode smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -73,13 +73,14 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test install, autonomous state, bootstrap dry-run and Doctor
+      - name: Smoke test install, roles, bootstrap dry-run and Doctor
         shell: bash
         run: |
           set -euo pipefail
           root="$(mktemp -d)"
           trap 'rm -rf "$root"' EXIT
-          native=(app-builder app-builder-doctor app-builder-handoff app-builder-about app-product-discovery app-requirements-mvp app-ux-accessibility app-brand-assets app-copywriting app-project-adoption app-security-orchestrator)
+          native=(app-builder app-builder-doctor app-builder-handoff app-builder-about app-product-discovery app-requirements-mvp app-ux-accessibility app-brand-assets app-copywriting app-project-adoption app-security-orchestrator app-analytics-measurement)
+          docs=(PROJECT_VISION.md PRODUCT_DISCOVERY.md REQUIREMENTS.md BRAND.md ASSET_INVENTORY.md USER_FLOWS.md ACCESSIBILITY.md COPY_SYSTEM.md SECURITY_PLAN.md MEASUREMENT_PLAN.md)
 
           for mode in personal prototype publication; do
             sandbox="$root/$mode"
@@ -88,14 +89,17 @@ jobs:
             bash scripts/init-project.sh --name "Test $mode" --mode "$mode" --path "$sandbox"
 
             for skill in "${native[@]}"; do test -f "$sandbox/.agents/skills/$skill/SKILL.md"; done
-            for doc in PROJECT_VISION.md PRODUCT_DISCOVERY.md REQUIREMENTS.md BRAND.md ASSET_INVENTORY.md USER_FLOWS.md ACCESSIBILITY.md COPY_SYSTEM.md SECURITY_PLAN.md; do test -f "$sandbox/docs/$doc"; done
+            for doc in "${docs[@]}"; do test -f "$sandbox/docs/$doc"; done
 
-            grep -q "Project mode: $mode" "$sandbox/.app-builder/state.md"
-            grep -q "Project origin: new" "$sandbox/.app-builder/state.md"
-            grep -q "Adoption status: not_applicable" "$sandbox/.app-builder/state.md"
-            grep -q "Bootstrap status: pending" "$sandbox/.app-builder/state.md"
-            grep -q "Current specialist: app-builder-doctor" "$sandbox/.app-builder/state.md"
-            grep -q "Phase 0 — Preflight, bootstrap and adoption" "$sandbox/.app-builder/state.md"
+            state="$sandbox/.app-builder/state.md"
+            grep -q "Project mode: $mode" "$state"
+            grep -q "Project origin: new" "$state"
+            grep -q "Adoption status: not_applicable" "$state"
+            grep -q "Bootstrap status: pending" "$state"
+            grep -q "Current role: Operations Lead" "$state"
+            grep -q "Current specialist: app-builder-doctor" "$state"
+            grep -q "Analytics and measurement" "$state"
+            grep -q "Phase 0 — Preflight, bootstrap and adoption" "$state"
 
             if grep -R -nE '\{\{?(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|PROJECT_ORIGIN|ADOPTION_STATUS|DATE)\}?\}' "$sandbox/.app-builder" "$sandbox/docs"; then
               echo "Sono rimasti placeholder non renderizzati in $mode" >&2
@@ -116,20 +120,40 @@ jobs:
           assert config["project"]["stateOwner"] == "current-session"
           assert config["appBuilder"]["routing"] == "autonomous"
           assert config["routing"]["askUserToChooseSkill"] is False
+          assert config["routing"]["visibleInterface"] == "luna_only"
+          assert config["routing"]["externalRolesInternalOnly"] is True
+          assert config["routing"]["searchSkillsOnlyForCapabilityGap"] is True
           assert config["bootstrap"]["automaticAfterConsent"] is True
           assert config["bootstrap"]["securityCatalog"]["activateOnDemandOnly"] is True
+          assert config["bootstrap"]["marketingCatalog"]["activateOnDemandOnly"] is True
+          assert config["integrations"]["findSkills"] == "capability-gap-only"
+          assert config["integrations"]["superpowers"] == "engineering-process"
           assert config["workflow"]["twoChats"] is False
           PY
 
-            node "$sandbox/.agents/skills/app-builder/scripts/bootstrap-specialists.mjs" --project "$sandbox" --dry-run
-            test -f "$sandbox/.app-builder/specialists.json"
-            test -f "$sandbox/.app-builder/bootstrap-report.md"
-            grep -q "dry_run" "$sandbox/.app-builder/specialists.json"
-            grep -q "on_demand_only" "$sandbox/.app-builder/specialists.json"
+            bootstrap="$sandbox/.agents/skills/app-builder/scripts/bootstrap-specialists.mjs"
+            node "$bootstrap" --project "$sandbox" --dry-run
+            registry="$sandbox/.app-builder/specialists.json"
+            report="$sandbox/.app-builder/bootstrap-report.md"
+            test -f "$registry"
+            test -f "$report"
+            grep -q '"visibleInterface": "luna_only"' "$registry"
+            grep -q '"stateOwner": "luna"' "$registry"
+            grep -q '"repository": "vercel-labs/skills"' "$registry"
+            grep -q '"repository": "obra/superpowers"' "$registry"
+            grep -q '"activation": "on_demand_only"' "$registry"
+            grep -q "Find Skills" "$report"
+            grep -q "Superpowers engineering process" "$report"
+            grep -q "Marketing catalog" "$report"
+            grep -q "Cybersecurity catalog" "$report"
 
             bash scripts/doctor.sh --project "$sandbox" --mode "$mode" --output .app-builder/doctor-report.md
-            grep -q "11 skill native rilevate" "$sandbox/.app-builder/doctor-report.md"
-            grep -q "Specialist bootstrap" "$sandbox/.app-builder/doctor-report.md"
+            doctor="$sandbox/.app-builder/doctor-report.md"
+            grep -q "12 skill native rilevate" "$doctor"
+            grep -q "Skill discovery" "$doctor"
+            grep -q "Engineering process" "$doctor"
+            grep -q "Marketing catalog index" "$doctor"
+            grep -q "Measurement plan" "$doctor"
           done
 
           existing="$root/existing"
@@ -146,7 +170,7 @@ jobs:
           bash scripts/verify-integrity.sh "$GITHUB_WORKSPACE"
 
   windows:
-    name: Windows autonomy, UTF-8 and three-mode smoke test
+    name: Windows roles, UTF-8 and three-mode smoke test
     runs-on: windows-latest
     timeout-minutes: 12
     steps:
@@ -185,12 +209,13 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test install, autonomous state, bootstrap dry-run and Doctor
+      - name: Smoke test install, roles, bootstrap dry-run and Doctor
         shell: pwsh
         run: |
           $repo = $env:GITHUB_WORKSPACE
           $root = Join-Path $env:RUNNER_TEMP "luna-smoke-$([guid]::NewGuid())"
-          $native = @("app-builder","app-builder-doctor","app-builder-handoff","app-builder-about","app-product-discovery","app-requirements-mvp","app-ux-accessibility","app-brand-assets","app-copywriting","app-project-adoption","app-security-orchestrator")
+          $native = @("app-builder","app-builder-doctor","app-builder-handoff","app-builder-about","app-product-discovery","app-requirements-mvp","app-ux-accessibility","app-brand-assets","app-copywriting","app-project-adoption","app-security-orchestrator","app-analytics-measurement")
+          $docs = @("PROJECT_VISION.md","PRODUCT_DISCOVERY.md","REQUIREMENTS.md","BRAND.md","ASSET_INVENTORY.md","USER_FLOWS.md","ACCESSIBILITY.md","COPY_SYSTEM.md","SECURITY_PLAN.md","MEASUREMENT_PLAN.md")
           New-Item -ItemType Directory -Force -Path $root | Out-Null
           try {
             foreach ($mode in @("personal", "prototype", "publication")) {
@@ -202,36 +227,39 @@ jobs:
               foreach ($skill in $native) {
                 if (-not (Test-Path (Join-Path $sandbox ".agents/skills/$skill/SKILL.md"))) { throw "Skill $skill non installata" }
               }
-              foreach ($doc in @("PROJECT_VISION.md","PRODUCT_DISCOVERY.md","REQUIREMENTS.md","BRAND.md","ASSET_INVENTORY.md","USER_FLOWS.md","ACCESSIBILITY.md","COPY_SYSTEM.md","SECURITY_PLAN.md")) {
+              foreach ($doc in $docs) {
                 if (-not (Test-Path (Join-Path $sandbox "docs/$doc"))) { throw "Documento $doc mancante" }
               }
 
               $statePath = Join-Path $sandbox ".app-builder/state.md"
               $state = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8
-              if ($state -notmatch "Project mode: $mode") { throw "Modalità non renderizzata" }
-              if ($state -notmatch "Project origin: new") { throw "Origine progetto errata" }
-              if ($state -notmatch "Adoption status: not_applicable") { throw "Adozione progetto nuovo errata" }
-              if ($state -notmatch "Bootstrap status: pending") { throw "Bootstrap state mancante" }
-              if ($state -notmatch "Current specialist: app-builder-doctor") { throw "Routing iniziale errato" }
-              if ($state -notmatch "Phase 0 — Preflight, bootstrap and adoption") { throw "UTF-8 o fase errata" }
+              foreach ($expected in @("Project mode: $mode","Project origin: new","Adoption status: not_applicable","Bootstrap status: pending","Current role: Operations Lead","Current specialist: app-builder-doctor","Analytics and measurement","Phase 0 — Preflight, bootstrap and adoption")) {
+                if ($state -notmatch [regex]::Escape($expected)) { throw "Stato mancante: $expected" }
+              }
               $badUtf8Prefixes = @([char]0x00E2, [char]0x00C3, [char]0x00EF)
               if ($badUtf8Prefixes | Where-Object { $state.Contains([string]$_) }) { throw "Testo UTF-8 corrotto" }
 
               $config = Get-Content -LiteralPath (Join-Path $sandbox ".app-builder/config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
               if ($config.project.mode -ne $mode -or $config.project.origin -ne "new") { throw "Config progetto errato" }
               if ($config.appBuilder.routing -ne "autonomous") { throw "Routing config errato" }
-              if ($config.routing.askUserToChooseSkill -ne $false) { throw "Scelta skill scaricata sull'utente" }
-              if ($config.bootstrap.automaticAfterConsent -ne $true) { throw "Bootstrap non automatico" }
-              if ($config.bootstrap.securityCatalog.activateOnDemandOnly -ne $true) { throw "Catalogo sicurezza troppo attivo" }
+              if ($config.routing.askUserToChooseSkill -ne $false -or $config.routing.visibleInterface -ne "luna_only" -or $config.routing.externalRolesInternalOnly -ne $true) { throw "Contratto routing errato" }
+              if ($config.bootstrap.securityCatalog.activateOnDemandOnly -ne $true -or $config.bootstrap.marketingCatalog.activateOnDemandOnly -ne $true) { throw "Cataloghi troppo attivi" }
+              if ($config.integrations.findSkills -ne "capability-gap-only" -or $config.integrations.superpowers -ne "engineering-process") { throw "Integrazioni esterne errate" }
 
               $bootstrap = Join-Path $sandbox ".agents/skills/app-builder/scripts/bootstrap-specialists.mjs"
               & node $bootstrap --project $sandbox --dry-run
               if ($LASTEXITCODE -ne 0) { throw "Bootstrap dry-run fallito" }
-              if (-not (Test-Path (Join-Path $sandbox ".app-builder/specialists.json"))) { throw "Registry bootstrap mancante" }
+              $registryPath = Join-Path $sandbox ".app-builder/specialists.json"
+              $registry = Get-Content $registryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+              if ($registry.visibleInterface -ne "luna_only" -or $registry.stateOwner -ne "luna") { throw "Ownership bootstrap errata" }
+              if ($registry.dynamicDiscovery.repository -ne "vercel-labs/skills" -or $registry.engineeringProcess.repository -ne "obra/superpowers") { throw "Find Skills o Superpowers mancanti" }
+              if ($registry.securityCatalog.activation -ne "on_demand_only" -or $registry.marketingCatalog.activation -ne "on_demand_only") { throw "Cataloghi non on demand" }
 
               & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $sandbox -Mode $mode -OutputPath ".app-builder/doctor-report.md"
-              $report = Get-Content (Join-Path $sandbox ".app-builder/doctor-report.md") -Raw -Encoding UTF8
-              if ($report -notmatch "11 skill native rilevate") { throw "Doctor non rileva le skill native" }
+              $doctor = Get-Content (Join-Path $sandbox ".app-builder/doctor-report.md") -Raw -Encoding UTF8
+              foreach ($expected in @("12 skill native rilevate","Skill discovery","Engineering process","Marketing catalog index","Measurement plan")) {
+                if ($doctor -notmatch [regex]::Escape($expected)) { throw "Doctor mancante: $expected" }
+              }
             }
 
             $existing = Join-Path $root "existing"
