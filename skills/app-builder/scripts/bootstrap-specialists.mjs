@@ -124,7 +124,7 @@ const installs = [
   ["Product Marketing", "coreyhaines31/marketingskills", "product-marketing"],
   ["Marketing Copywriting", "coreyhaines31/marketingskills", "copywriting"],
   ["Copy Editing", "coreyhaines31/marketingskills", "copy-editing"],
-  ["Brand", "nextlevelbuilder/ui-ux-pro-max-skill", "brand"],
+  ["Build a Brand", "Pika-Labs/Pika-Plugins", "build-a-brand"],
   ["Design", "nextlevelbuilder/ui-ux-pro-max-skill", "design"],
   ["Design System", "nextlevelbuilder/ui-ux-pro-max-skill", "design-system"],
 ];
