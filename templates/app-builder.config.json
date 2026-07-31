@@ -1,14 +1,17 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "appBuilder": {
     "agentName": "Luna",
     "creator": "Massimiliano",
     "version": "2.0.0-beta.1",
-    "welcomeShown": false
+    "welcomeShown": false,
+    "routing": "autonomous"
   },
   "project": {
     "name": "{PROJECT_NAME}",
     "mode": "{PROJECT_MODE}",
+    "origin": "new",
+    "adoptionStatus": "not_applicable",
     "platforms": [],
     "stateOwner": "current-session"
   },
@@ -17,11 +20,30 @@
     "twoChats": false,
     "designChat": null,
     "developmentChat": null,
-    "rule": "personal=single by default; prototype=conditional; publication=two chats recommended when design and development run separately"
+    "rule": "single chat by default; split only when design and development have material independent work"
+  },
+  "bootstrap": {
+    "status": "pending",
+    "consentRequired": true,
+    "automaticAfterConsent": true,
+    "registry": ".app-builder/specialists.json",
+    "report": ".app-builder/bootstrap-report.md",
+    "securityCatalog": {
+      "downloadFullCatalog": true,
+      "activateOnDemandOnly": true,
+      "index": ".app-builder/security-catalog/index.json"
+    }
+  },
+  "routing": {
+    "askUserToChooseSkill": false,
+    "preserveExistingProject": true,
+    "maxConcurrentSlices": 1,
+    "continueReversibleStepsAutomatically": true
   },
   "integrations": {
     "expo": "auto",
     "supabase": "auto",
-    "codexSecurity": "auto"
+    "codexSecurity": "primary-security-engine",
+    "communitySecurityCatalog": "on-demand-playbooks"
   }
 }
