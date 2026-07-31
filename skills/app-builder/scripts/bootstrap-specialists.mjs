@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
 const SECURITY_REPOSITORY = "https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git";
@@ -37,6 +45,7 @@ const securityIndexPath = join(appBuilder, "security-catalog", "index.json");
 mkdirSync(appBuilder, { recursive: true });
 
 const results = [];
+const portable = (value) => String(value ?? "").split(project).join(".");
 function run(label, command, commandArgs, cwd = project) {
   const rendered = [command, ...commandArgs].join(" ");
   if (dryRun) {
@@ -62,6 +71,53 @@ function run(label, command, commandArgs, cwd = project) {
   });
   return ok;
 }
+
+function protectLocalCacheFromGit() {
+  const gitExclude = join(project, ".git", "info", "exclude");
+  const entries = [".app-builder/vendor/", ".app-builder/security-catalog/"];
+  if (dryRun) {
+    results.push({
+      label: "Git local exclude",
+      status: "dry_run",
+      command: "append .app-builder local caches to .git/info/exclude",
+      detail: "nessuna modifica eseguita",
+    });
+    return;
+  }
+  if (!existsSync(gitExclude)) {
+    results.push({
+      label: "Git local exclude",
+      status: "not_applicable",
+      command: "none",
+      detail: "repository Git non rilevato; nessun .gitignore del progetto modificato",
+    });
+    return;
+  }
+  const current = readFileSync(gitExclude, "utf8");
+  const missing = entries.filter((entry) => !current.split(/\r?\n/).includes(entry));
+  if (missing.length === 0) {
+    results.push({
+      label: "Git local exclude",
+      status: "ready",
+      command: "none",
+      detail: "cache Luna già escluse localmente",
+    });
+    return;
+  }
+  const prefix = current.endsWith("\n") || current.length === 0 ? "" : "\n";
+  appendFileSync(
+    gitExclude,
+    `${prefix}# Luna local specialist cache\n${missing.join("\n")}\n`,
+    "utf8",
+  );
+  results.push({
+    label: "Git local exclude",
+    status: "ready",
+    command: "append .git/info/exclude",
+    detail: "cache vendor e indice sicurezza esclusi senza modificare .gitignore",
+  });
+}
+protectLocalCacheFromGit();
 
 const installs = [
   ["PRD Generator", "jamesrochabrun/skills", "prd-generator"],
@@ -186,19 +242,24 @@ if (!dryRun && existsSync(join(securityRoot, "skills"))) {
   );
 }
 
+const safeResults = results.map((item) => ({
+  ...item,
+  command: portable(item.command),
+  detail: portable(item.detail),
+}));
 const registry = {
   generatedAt: new Date().toISOString(),
-  project,
+  project: ".",
   consent: approved,
   dryRun,
   securityCatalog: {
     repository: SECURITY_REPOSITORY,
     pinnedCommit: SECURITY_COMMIT,
-    path: securityRoot,
+    path: relative(project, securityRoot).replaceAll("\\", "/"),
     indexedSkills: securityCount,
     activation: "on_demand_only",
   },
-  results,
+  results: safeResults,
 };
 writeFileSync(registryPath, JSON.stringify(registry, null, 2) + "\n", "utf8");
 
@@ -206,7 +267,7 @@ const lines = [
   "# Luna Specialist Bootstrap",
   "",
   `- Data: ${new Date().toISOString()}`,
-  `- Progetto: ${project}`,
+  "- Progetto: `.`",
   `- Consenso esplicito: ${approved}`,
   `- Dry run: ${dryRun}`,
   `- Skill sicurezza indicizzate: ${securityCount || "non calcolate"}`,
@@ -214,7 +275,7 @@ const lines = [
   "| Capability | Stato | Comando | Evidenza |",
   "|---|---|---|---|",
 ];
-for (const item of results) {
+for (const item of safeResults) {
   const safe = String(item.detail || "").replace(/\|/g, "\\|");
   lines.push(`| ${item.label} | ${item.status} | \`${item.command}\` | ${safe} |`);
 }
