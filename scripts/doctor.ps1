@@ -164,8 +164,7 @@ $out.Add("| Capability | Stato | Evidenza | Prossima azione |")
 $out.Add("|---|---|---|---|")
 foreach ($c in $checks) {
   $e = ($c.Evidence -replace "\r?\n", " ") -replace "\|", "\\|"
-  $n = ($c.Next -replace "\|", "\\|"
-  )
+  $n = $c.Next -replace "\|", "\\|"
   $out.Add("| $($c.Name) | $($c.Status) | $e | $n |")
 }
 $out.Add("")
