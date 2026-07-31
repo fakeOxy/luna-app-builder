@@ -6,7 +6,8 @@ momento dell'installazione.
 | Sorgente | Capability | Licenza dichiarata | Strategia |
 |---|---|---|---|
 | `jamesrochabrun/skills` | `prd-generator` | verificare nel repository al bootstrap | installare solo la skill richiesta |
-| `nextlevelbuilder/ui-ux-pro-max-skill` | UI/UX, design, brand, design system | MIT nel repository; verificare componenti CLI | installazione Codex e report |
+| `nextlevelbuilder/ui-ux-pro-max-skill` | UI/UX, design e design system | MIT nel repository; verificare componenti CLI | installazione Codex e report |
+| `Pika-Labs/Pika-Plugins` | `build-a-brand` | Apache-2.0 | installare la skill; eventuali tool o crediti Pika richiedono consenso separato |
 | `pbakaus/impeccable` | UX critique, audit, interaction, UX writing | verificare nel repository al bootstrap | skill condivisa, uso selettivo |
 | `coreyhaines31/marketingskills` | product marketing, copywriting, copy editing | MIT | installare solo tre skill |
 | `mukul975/Anthropic-Cybersecurity-Skills` | 817 playbook in 29 domini | Apache-2.0 | clone pin, indice locale, attivazione on demand |
@@ -14,6 +15,7 @@ momento dell'installazione.
 ## Regole di fiducia
 
 - Community non significa ufficiale.
+- Installare una skill gratuita non autorizza eventuali servizi, crediti o chiamate a pagamento.
 - Licenza del repository e licenza di un installer o asset possono differire: registra entrambe.
 - Non eseguire automaticamente script inclusi nelle skill.
 - Controlla commit, file modificati, prerequisiti e comandi prima dell'uso.
