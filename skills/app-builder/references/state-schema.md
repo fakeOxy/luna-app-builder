@@ -11,17 +11,25 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Version: 2.0.0-beta.1
 - welcome_shown: false
 - Integrity status: not_checked
+- Bootstrap status: pending | ready | partial | declined | blocked
+- Bootstrap consent date:
+- Specialists registry: `.app-builder/specialists.json`
+- Security catalog: missing | indexed | stale | blocked
 
 ## Project
 - Name:
 - One-line outcome:
 - Repository root:
-- Existing or new:
+- Project origin: new | existing | migrated
+- Adoption status: not_applicable | pending | in_progress | approved | blocked
+- Adoption report: `.app-builder/adoption-report.md`
 - Project mode: personal | prototype | publication
 - Product type:
 - Target platforms:
 - Distribution target:
 - Current phase:
+- Current specialist:
+- Specialist reason:
 - Delivery mode: guided | vertical_slices
 - Current slice:
 - State owner:
@@ -52,6 +60,35 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Evidence last reviewed:
 - Detailed artifact: `docs/PRODUCT_DISCOVERY.md`
 
+## Requirements and MVP
+- Gate status: pending | in_progress | approved | approved_with_assumptions | blocked | not_applicable
+- Main outcome:
+- MVP boundary:
+- First vertical slice:
+- Main dependency:
+- Detailed artifact: `docs/REQUIREMENTS.md`
+
+## Brand and assets
+- Gate status: pending | in_progress | approved | blocked | not_applicable
+- Direction:
+- Voice:
+- Missing critical asset:
+- Detailed artifacts: `docs/BRAND.md`, `docs/ASSET_INVENTORY.md`
+
+## UX and accessibility
+- Gate status: pending | in_progress | approved | blocked | not_applicable
+- Primary flow:
+- Main accessibility risk:
+- Runtime verification:
+- Detailed artifacts: `docs/USER_FLOWS.md`, `docs/ACCESSIBILITY.md`
+
+## Copywriting
+- Gate status: pending | in_progress | approved | blocked | not_applicable
+- Voice principle:
+- Main terminology decision:
+- Sensitive copy review:
+- Detailed artifact: `docs/COPY_SYSTEM.md`
+
 ## Scope
 ### MVP
 - ...
@@ -77,8 +114,11 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 |---|---|---|---|
 
 ## Security and privacy
+- Security gate: pending | in_progress | approved | blocked | not_applicable
 - SECURITY.md:
 - Threat model:
+- Security plan: `docs/SECURITY_PLAN.md`
+- Community playbooks selected:
 - Last diff scan:
 - Last standard scan:
 - Last deep scan:
@@ -97,10 +137,10 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 ## Phase status
 | Phase | Status | Deliverable | Gate evidence |
 |---|---|---|---|
-| 0 Preflight and feasibility | pending | doctor report, modalità e avvio discovery | |
-| 1 Product and MVP | pending | product discovery, vision e requisiti MVP | |
-| 2 Brand | pending | | |
-| 3 UX and accessibility | pending | | |
+| 0 Preflight, bootstrap and adoption | pending | doctor, bootstrap, adoption | |
+| 1 Discovery, requirements and MVP | pending | discovery, requirements, MVP | |
+| 2 Brand and assets | pending | brand, asset inventory | |
+| 3 UX, accessibility and copy | pending | flows, accessibility, copy | |
 | 4 Design system and UI | pending | | |
 | 5 Architecture, data, privacy, security | pending | | |
 | 6 Implementation | pending | | |
@@ -117,25 +157,31 @@ not_applicable.
 - ID and name:
 - Outcome:
 - Specification:
+- UX/accessibility:
+- Copy:
 - Design:
+- Architecture/security:
 - Implementation:
 - Verification:
-- Security check:
 - Acceptance criterion:
 - Status:
 
 ## Source of truth
 - Detailed tracker:
 - Product discovery: `docs/PRODUCT_DISCOVERY.md`
-- Product/UX specs:
+- Requirements: `docs/REQUIREMENTS.md`
+- UX/accessibility: `docs/USER_FLOWS.md`, `docs/ACCESSIBILITY.md`
+- Brand/assets: `docs/BRAND.md`, `docs/ASSET_INVENTORY.md`
+- Copy: `docs/COPY_SYSTEM.md`
 - Design system:
+- Security: `docs/SECURITY_PLAN.md`
 - Implementation truth:
 - Conflict resolution:
 
 ## End-to-end coverage
 | Area | Status | Evidence or limitation | Owner |
 |---|---|---|---|
-| Strategy and feasibility | covered_pending | `docs/PRODUCT_DISCOVERY.md` | |
+| Strategy and feasibility | covered_pending | | |
 | Product and experience | covered_pending | | |
 | Brand and design | covered_pending | | |
 | Architecture and data | covered_pending | | |
@@ -147,7 +193,10 @@ not_applicable.
 ## Artifact index
 | Artifact | Path/URL | Status |
 |---|---|---|
-| Product discovery | `docs/PRODUCT_DISCOVERY.md` | in_progress |
+
+## Specialist history
+| Specialist | Reason | Artifact | Gate | Date |
+|---|---|---|---|---|
 
 ## Active handoffs
 | Owner | Output | Allowed paths | Status |
@@ -165,35 +214,43 @@ not_applicable.
 - YYYY-MM-DD — ...
 ```
 
+## Regole del routing autonomo
+
+- `Current specialist` deve riflettere lo specialista realmente attivo; l'utente non deve sceglierlo.
+- Registra in `Specialist history` motivo, artefatto e gate per evitare reinvocazioni rituali.
+- Se lo specialista esterno manca ma il fallback nativo copre il gate, registra `partial` e continua.
+- Una transizione automatica è consentita soltanto se il prossimo passo è reversibile e già autorizzato.
+
+## Regole del bootstrap
+
+- `ready` richiede report, registro specialisti e post-check.
+- `partial` nomina installazioni fallite e fallback disponibili.
+- Il consenso bootstrap non autorizza strumenti invasivi o account esterni.
+- Il catalogo sicurezza `indexed` significa disponibile localmente, non 817 skill attive.
+
+## Regole del progetto esistente
+
+- `Adoption status: approved` richiede baseline, fonti di verità, convenzioni, aree protette e primo
+  intervento minimo.
+- Non segnare fasi `pending` se il progetto possiede prove affidabili che le rendono già approvate.
+- Errori preesistenti e working tree non pulito devono essere registrati prima delle modifiche.
+
 ## Regole del Product Discovery
 
-- `Gate status: approved` richiede utente, problema, outcome, alternativa, successo, MVP,
-  esclusioni, assunzioni, evidenze con limiti, fattibilità preliminare e prossimo test.
-- `approved_with_assumptions` nomina le assunzioni aperte e incorpora il loro test nel prossimo
-  investimento.
-- `Confidence` usa solo low, medium o high; non inventare percentuali senza un modello reale.
-- Ricerca documentale e competitor possono sostenere un'ipotesi, ma `behavior-validated` richiede
-  comportamento diretto di utenti pertinenti e una soglia definita prima del test.
-- Aggiorna `Evidence last reviewed` quando prezzi, policy, API o competitor vengono ricontrollati.
-- Non copiare l'intero documento di discovery nello stato: conserva qui decisione, prova più forte,
-  assunzione principale e prossimo esperimento.
+- `approved` richiede utente, problema, outcome, alternativa, successo, MVP, esclusioni, assunzioni,
+  evidenze con limiti, fattibilità preliminare e prossimo test.
+- `approved_with_assumptions` incorpora il test delle assunzioni nel prossimo investimento.
+- `behavior-validated` richiede comportamento diretto e soglia definita prima del test.
 
 ## Regole di coerenza e persistenza
 
-- Non dire “ho registrato” finché il file non è stato scritto e riletto oppure il diff non mostra i valori.
-- Ogni esclusione confermata va copiata in `Scope > Explicitly excluded`, non soltanto in vincoli o decisioni.
-- Quando una decisione chiude un prerequisito, aggiorna i campi dipendenti e rimuovi note ormai vecchie.
-- `Target platforms` descrive il target attuale. Uno stack multipiattaforma non aggiunge piattaforme non richieste.
-- Motiva lo stack con il requisito corrente; eventuali possibilità future restano in `Later` o nelle assunzioni.
-- Per modalità personale, classifica store, monetizzazione, backend remoto e compliance pubblica come
-  `not_applicable` quando esplicitamente esclusi; non lasciare tutto genericamente `pending`.
-- `State owner` e `Workflow` devono riflettere la sessione reale: una sola chat per default, due soltanto
-  dopo attivazione esplicita del workflow Design/Sviluppo.
-- Dopo ogni aggiornamento materiale, rileggi almeno le sezioni modificate e correggi incoerenze prima di rispondere.
-
-## Regole
-
-- Una sola fase e una sola slice `in_progress`.
+- Non dire “ho registrato” finché il file non è stato scritto e riletto o il diff mostra i valori.
+- Ogni esclusione confermata va copiata in `Scope > Explicitly excluded`.
+- Quando una decisione chiude un prerequisito, aggiorna i campi dipendenti.
+- `Target platforms` descrive il target attuale, non tutte le possibilità dello stack.
+- Per modalità personale, marca store, monetizzazione, backend remoto e compliance pubblica
+  `not_applicable` quando esclusi.
+- Una sola fase, uno specialista proprietario e una slice `in_progress`.
 - Solo lo state owner modifica il file.
 - Collega artefatti dettagliati, non copiarli interamente.
 - Non salvare token, password, dati personali inutili o segreti.
