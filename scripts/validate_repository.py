@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Static validation for Luna App Builder.
 
-Checks package metadata, native skills, autonomous routing, bootstrap safety,
-templates, attribution, obvious secret leaks and the committed integrity manifest.
-It never contacts third parties or runs installers.
+Checks package metadata, native skills, autonomous routing, external-specialist
+contracts, bootstrap safety, templates, attribution, obvious secret leaks and
+the committed integrity manifest. It never contacts third parties or runs
+installers.
 """
 from __future__ import annotations
 
@@ -35,6 +36,7 @@ EXPECTED_SKILLS = {
     "app-copywriting",
     "app-project-adoption",
     "app-security-orchestrator",
+    "app-analytics-measurement",
 }
 ALLOWED_TEMPLATE_KEYS = {
     "PROJECT_NAME",
@@ -48,6 +50,9 @@ ALLOWED_TEMPLATE_KEYS = {
 IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache", "node_modules"}
 SECURITY_REPOSITORY = "https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git"
 SECURITY_PIN = "673da1f3b0b7be34ffc9624ef3858fe45f1c3bed"
+MARKETING_REPOSITORY = "https://github.com/coreyhaines31/marketingskills.git"
+FIND_SKILLS_REPOSITORY = "vercel-labs/skills"
+SUPERPOWERS_REPOSITORY = "obra/superpowers"
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -125,6 +130,7 @@ required_paths = [
     "creator.json",
     "integrity-manifest.json",
     "docs/VALIDATION.md",
+    "docs/superpowers/plans/2026-07-31-external-specialists-routing.md",
     "scripts/install.sh",
     "scripts/install.ps1",
     "scripts/init-project.sh",
@@ -145,10 +151,13 @@ required_paths = [
     "templates/docs/ACCESSIBILITY.md",
     "templates/docs/COPY_SYSTEM.md",
     "templates/docs/SECURITY_PLAN.md",
+    "templates/docs/MEASUREMENT_PLAN.md",
     "skills/app-builder/scripts/bootstrap-specialists.mjs",
     "skills/app-builder/references/autonomous-routing.md",
     "skills/app-builder/references/specialist-bootstrap.md",
     "skills/app-builder/references/external-specialists.md",
+    "skills/app-builder/references/external-roles.md",
+    "skills/app-builder/references/dynamic-skill-discovery.md",
     "skills/app-security-orchestrator/references/security-selection.md",
 ]
 for relative in required_paths:
@@ -172,10 +181,7 @@ version = creator.get("version")
 
 if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):
     fail("creator.json.version non segue SemVer")
-for label, value in {
-    "plugin version": plugin.get("version"),
-    "manifest version": manifest.get("version"),
-}.items():
+for label, value in {"plugin version": plugin.get("version"), "manifest version": manifest.get("version")}.items():
     if value != version:
         fail(f"Versione incoerente: {label}={value!r}, creator={version!r}")
 if creator.get("creator") != EXPECTED_CREATOR or manifest.get("creator") != EXPECTED_CREATOR:
@@ -241,11 +247,18 @@ for routed in (
     "$app-ux-accessibility",
     "$app-copywriting",
     "$app-security-orchestrator",
+    "$app-analytics-measurement",
 ):
     if routed not in main_skill:
         fail(f"Routing autonomo mancante: {routed}")
-if "non deve conoscere i nomi delle skill" not in main_skill:
-    fail("Luna non dichiara il routing autonomo")
+for phrase in (
+    "non deve conoscere i nomi delle skill",
+    "Luna resta l'unica interfaccia",
+    "state owner",
+    "capability gap",
+):
+    if phrase not in main_skill:
+        fail(f"Contratto orchestratore mancante: {phrase}")
 if "Le app create non devono mostrare i crediti" not in main_skill:
     fail("Crediti del pacchetto non separati dalle app generate")
 
@@ -269,15 +282,30 @@ if config.get("appBuilder", {}).get("routing") != "autonomous":
     fail("Routing config non autonomo")
 if config.get("routing", {}).get("askUserToChooseSkill") is not False:
     fail("Il config permette di scaricare la scelta skill sull'utente")
+if config.get("routing", {}).get("visibleInterface") != "luna_only":
+    fail("L'interfaccia visibile non è limitata a Luna")
+if config.get("routing", {}).get("externalRolesInternalOnly") is not True:
+    fail("I ruoli esterni non sono dichiarati interni")
 if config.get("bootstrap", {}).get("automaticAfterConsent") is not True:
     fail("Bootstrap automatico dopo consenso non configurato")
-if config.get("bootstrap", {}).get("securityCatalog", {}).get("activateOnDemandOnly") is not True:
-    fail("Catalogo sicurezza non limitato all'attivazione on demand")
+for catalog in ("securityCatalog", "marketingCatalog"):
+    if config.get("bootstrap", {}).get(catalog, {}).get("activateOnDemandOnly") is not True:
+        fail(f"Catalogo {catalog} non limitato all'attivazione on demand")
 if config.get("project", {}).get("origin") != "{PROJECT_ORIGIN}":
     fail("Origine progetto non renderizzabile nel config")
 
 bootstrap = read_text(ROOT / "skills/app-builder/scripts/bootstrap-specialists.mjs")
-for required in (SECURITY_REPOSITORY, SECURITY_PIN, "--approved", "--dry-run", "on_demand_only"):
+for required in (
+    SECURITY_REPOSITORY,
+    SECURITY_PIN,
+    MARKETING_REPOSITORY,
+    FIND_SKILLS_REPOSITORY,
+    SUPERPOWERS_REPOSITORY,
+    "find-skills",
+    "on_demand_only",
+    "--approved",
+    "--dry-run",
+):
     if required not in bootstrap:
         fail(f"Bootstrap privo del vincolo richiesto: {required}")
 for forbidden in ("shell: true", "curl ", "wget ", "Invoke-Expression"):
@@ -285,6 +313,8 @@ for forbidden in ("shell: true", "curl ", "wget ", "Invoke-Expression"):
         fail(f"Bootstrap contiene pattern non consentito: {forbidden}")
 if re.search(r"Anthropic-Cybersecurity-Skills[^\n]+(?:skills add|--skill)", bootstrap):
     fail("Il catalogo sicurezza non deve essere registrato in blocco come skill attive")
+if re.search(r"marketingskills[^\n]+--skill\s+\*", bootstrap):
+    fail("Il catalogo marketing non deve essere registrato in blocco come skill attive")
 if "failed_optional" not in bootstrap:
     fail("Bootstrap privo di fallback per specialisti community")
 
