@@ -40,7 +40,7 @@ $git = Get-CommandInfo "git" @("--version")
 $node = Get-CommandInfo "node" @("--version")
 $npm = Get-CommandInfo "npm" @("--version")
 $codex = Get-CommandInfo "codex" @("--version")
-Add-Check "Git" ($(if($git){"ready"}else{"missing_required"})), ($(if($git){$git}else{"comando non trovato"})), "Git serve per versioning, adozione e catalogo sicurezza."
+Add-Check "Git" ($(if($git){"ready"}else{"missing_required"})), ($(if($git){$git}else{"comando non trovato"})), "Git serve per versioning, adozione e cataloghi locali."
 Add-Check "Node.js" ($(if($node){"ready"}else{"missing_optional"})), ($(if($node){$node}else{"comando non trovato"})), "Richiesto per bootstrap, Expo e molte app."
 Add-Check "npm/npx" ($(if($npm){"ready"}else{"missing_optional"})), ($(if($npm){"v$npm"}else{"comando non trovato"})), "Richiesto per gli specialisti community e stack JavaScript."
 Add-Check "Codex" ($(if($codex){"ready"}else{"missing_required"})), ($(if($codex){$codex}else{"comando non trovato"})), "Accedi a Codex e riapri la sessione dopo nuove skill."
@@ -56,13 +56,14 @@ $nativeSkills = @(
   "app-brand-assets",
   "app-copywriting",
   "app-project-adoption",
-  "app-security-orchestrator"
+  "app-security-orchestrator",
+  "app-analytics-measurement"
 )
 $missingNative = [System.Collections.Generic.List[string]]::new()
 foreach ($skill in $nativeSkills) {
   if (-not (Find-Skill $skill)) { $missingNative.Add($skill) }
 }
-Add-Check "Luna native skills" ($(if($missingNative.Count -eq 0){"ready"}else{"missing_required"})), ($(if($missingNative.Count -eq 0){"11 skill native rilevate"}else{"mancano: $($missingNative -join ', ')"})), "Reinstalla Luna App Builder dal repository ufficiale e apri una nuova sessione."
+Add-Check "Luna native skills" ($(if($missingNative.Count -eq 0){"ready"}else{"missing_required"})), ($(if($missingNative.Count -eq 0){"12 skill native rilevate"}else{"mancano: $($missingNative -join ', ')"})), "Reinstalla Luna App Builder dal repository ufficiale e apri una nuova sessione."
 
 $meaningfulEntries = Get-ChildItem -LiteralPath $ProjectPath -Force -ErrorAction SilentlyContinue |
   Where-Object { $_.Name -notin @(".app-builder", ".agents", ".codex", "docs") }
@@ -78,6 +79,7 @@ if ($isExisting) {
 
 $registryPath = Join-Path $ProjectPath ".app-builder/specialists.json"
 $securityIndex = Join-Path $ProjectPath ".app-builder/security-catalog/index.json"
+$marketingIndex = Join-Path $ProjectPath ".app-builder/marketing-catalog/index.json"
 if (-not (Test-Path $registryPath) -and $AutoInstallApproved -and $node -and $npm -and $git) {
   $bootstrapCandidates = @(
     (Join-Path $ProjectPath ".agents/skills/app-builder/scripts/bootstrap-specialists.mjs"),
@@ -92,12 +94,15 @@ if (-not (Test-Path $registryPath) -and $AutoInstallApproved -and $node -and $np
   }
 }
 Add-Check "Specialist bootstrap" ($(if(Test-Path $registryPath){"ready"}else{"missing_optional"})), ($(if(Test-Path $registryPath){$registryPath}else{"non eseguito"})), "Luna presenta una sola richiesta di consenso e avvia automaticamente il bootstrap."
-Add-Check "Security catalog index" ($(if(Test-Path $securityIndex){"ready"}else{"missing_optional"})), ($(if(Test-Path $securityIndex){$securityIndex}else{"catalogo non indicizzato"})), "Il catalogo completo viene scaricato in vendor, ma i playbook si caricano on demand."
+Add-Check "Security catalog index" ($(if(Test-Path $securityIndex){"ready"}else{"missing_optional"})), ($(if(Test-Path $securityIndex){$securityIndex}else{"catalogo non indicizzato"})), "Il catalogo sicurezza completo resta on demand."
+Add-Check "Marketing catalog index" ($(if(Test-Path $marketingIndex){"ready"}else{"missing_optional"})), ($(if(Test-Path $marketingIndex){$marketingIndex}else{"catalogo non indicizzato"})), "Il catalogo marketing completo resta on demand."
 
 $externalGroups = [ordered]@{
+  "Skill discovery" = @("find-skills")
+  "Engineering process" = @("using-superpowers", "brainstorming", "writing-plans", "test-driven-development")
   "PRD specialist" = @("prd-generator")
   "UX/design specialists" = @("ui-ux-pro-max", "impeccable")
-  "Brand specialists" = @("design", "brand", "design-system")
+  "Brand specialists" = @("build-a-brand", "design", "brand", "design-system")
   "Copy specialists" = @("product-marketing", "copywriting", "copy-editing")
 }
 foreach ($group in $externalGroups.GetEnumerator()) {
@@ -148,8 +153,10 @@ Add-Check "Codex Security" ($(if($securityPlugin){"ready"}elseif($securityNeeded
 
 $statePath = Join-Path $ProjectPath ".app-builder/state.md"
 $discoveryDoc = Join-Path $ProjectPath "docs/PRODUCT_DISCOVERY.md"
+$measurementDoc = Join-Path $ProjectPath "docs/MEASUREMENT_PLAN.md"
 Add-Check "Stato App Builder" ($(if(Test-Path $statePath){"ready"}else{"missing_required"})), ($(if(Test-Path $statePath){$statePath}else{"file assente"})), "Inizializza il progetto senza sovrascrivere documenti esistenti."
 Add-Check "Product Discovery document" ($(if(Test-Path $discoveryDoc){"ready"}else{"missing_optional"})), ($(if(Test-Path $discoveryDoc){$discoveryDoc}else{"documento non presente"})), "Luna lo crea quando discovery è il prossimo gate."
+Add-Check "Measurement plan" ($(if(Test-Path $measurementDoc){"ready"}else{"missing_optional"})), ($(if(Test-Path $measurementDoc){$measurementDoc}else{"documento non presente"})), "Luna lo crea quando outcome, beta o analytics richiedono misurazione."
 
 $out = [System.Collections.Generic.List[string]]::new()
 $out.Add("# App Builder Doctor")
