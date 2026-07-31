@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Static validation for Luna App Builder.
 
-Validates package metadata, native skills, autonomous routing, bootstrap safety,
+Checks package metadata, native skills, autonomous routing, bootstrap safety,
 templates, attribution, obvious secret leaks and the committed integrity manifest.
 It never contacts third parties or runs installers.
 """
@@ -36,7 +36,15 @@ EXPECTED_SKILLS = {
     "app-project-adoption",
     "app-security-orchestrator",
 }
-ALLOWED_TEMPLATE_KEYS = {"PROJECT_NAME", "PROJECT_MODE", "PROJECT_ROOT", "DATE", "HANDOFF_ID"}
+ALLOWED_TEMPLATE_KEYS = {
+    "PROJECT_NAME",
+    "PROJECT_MODE",
+    "PROJECT_ROOT",
+    "PROJECT_ORIGIN",
+    "ADOPTION_STATUS",
+    "DATE",
+    "HANDOFF_ID",
+}
 IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache", "node_modules"}
 SECURITY_REPOSITORY = "https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git"
 SECURITY_PIN = "673da1f3b0b7be34ffc9624ef3858fe45f1c3bed"
@@ -241,9 +249,9 @@ if "non deve conoscere i nomi delle skill" not in main_skill:
 if "Le app create non devono mostrare i crediti" not in main_skill:
     fail("Crediti del pacchetto non separati dalle app generate")
 
-for relative in ("README.md", "NOTICE", "CREDITS.md", "skills/app-builder/SKILL.md"):
-    if EXPECTED_CREATOR not in read_text(ROOT / relative):
-        fail(f"Credito del creatore mancante in {relative}")
+for relative_path in ("README.md", "NOTICE", "CREDITS.md", "skills/app-builder/SKILL.md"):
+    if EXPECTED_CREATOR not in read_text(ROOT / relative_path):
+        fail(f"Credito del creatore mancante in {relative_path}")
 
 for path in sorted((ROOT / "templates").rglob("*")):
     if not path.is_file():
@@ -252,6 +260,9 @@ for path in sorted((ROOT / "templates").rglob("*")):
     for match in re.finditer(r"\{\{([A-Z0-9_]+)\}\}", text):
         if match.group(1) not in ALLOWED_TEMPLATE_KEYS:
             fail(f"Placeholder non supportato {match.group(0)} in {path.relative_to(ROOT)}")
+    for match in re.finditer(r"(?<!\{)\{([A-Z][A-Z0-9_]+)\}(?!\})", text):
+        if match.group(1) not in ALLOWED_TEMPLATE_KEYS:
+            fail(f"Placeholder singolo non supportato {match.group(0)} in {path.relative_to(ROOT)}")
 if config.get("appBuilder", {}).get("creator") != EXPECTED_CREATOR:
     fail("Il config template non conserva il credito")
 if config.get("appBuilder", {}).get("routing") != "autonomous":
@@ -262,18 +273,20 @@ if config.get("bootstrap", {}).get("automaticAfterConsent") is not True:
     fail("Bootstrap automatico dopo consenso non configurato")
 if config.get("bootstrap", {}).get("securityCatalog", {}).get("activateOnDemandOnly") is not True:
     fail("Catalogo sicurezza non limitato all'attivazione on demand")
+if config.get("project", {}).get("origin") != "{PROJECT_ORIGIN}":
+    fail("Origine progetto non renderizzabile nel config")
 
 bootstrap = read_text(ROOT / "skills/app-builder/scripts/bootstrap-specialists.mjs")
 for required in (SECURITY_REPOSITORY, SECURITY_PIN, "--approved", "--dry-run", "on_demand_only"):
     if required not in bootstrap:
         fail(f"Bootstrap privo del vincolo richiesto: {required}")
-for forbidden in ("shell: true", "curl ", "wget ", "Invoke-Expression", "--skill \"*\" -a codex"):
+for forbidden in ("shell: true", "curl ", "wget ", "Invoke-Expression"):
     if forbidden in bootstrap:
         fail(f"Bootstrap contiene pattern non consentito: {forbidden}")
-if "Anthropic-Cybersecurity-Skills", "--skill" in ():  # pragma: no cover - keeps formatter quiet
-    pass
-if re.search(r"Anthropic-Cybersecurity-Skills[^\n]+--skill", bootstrap):
+if re.search(r"Anthropic-Cybersecurity-Skills[^\n]+(?:skills add|--skill)", bootstrap):
     fail("Il catalogo sicurezza non deve essere registrato in blocco come skill attive")
+if "failed_optional" not in bootstrap:
+    fail("Bootstrap privo di fallback per specialisti community")
 
 forbidden_names = re.compile(r"(^|/)(\.env($|\.)|.*\.(p8|p12|jks|keystore|pem|key))$", re.IGNORECASE)
 secret_patterns = [
@@ -285,11 +298,11 @@ secret_patterns = [
 for path in sorted(ROOT.rglob("*")):
     if not path.is_file() or ignored(path):
         continue
-    relative = path.relative_to(ROOT).as_posix()
-    if forbidden_names.search(relative):
-        fail(f"Possibile file segreto incluso: {relative}")
+    relative_path = path.relative_to(ROOT).as_posix()
+    if forbidden_names.search(relative_path):
+        fail(f"Possibile file segreto incluso: {relative_path}")
     if path.stat().st_size > 1_000_000:
-        warn(f"File grande non analizzato per segreti: {relative}")
+        warn(f"File grande non analizzato per segreti: {relative_path}")
         continue
     try:
         text = path.read_text(encoding="utf-8")
@@ -297,7 +310,7 @@ for path in sorted(ROOT.rglob("*")):
         continue
     for label, pattern in secret_patterns:
         if pattern.search(text):
-            fail(f"Possibile {label} incluso in {relative}")
+            fail(f"Possibile {label} incluso in {relative_path}")
 
 installer_text = "\n".join(read_text(ROOT / p) for p in ("scripts/install.sh", "scripts/install.ps1"))
 for label, pattern in {
@@ -317,22 +330,22 @@ for entry in entries:
     if not isinstance(entry, dict):
         fail("Voce non oggetto nel manifesto")
         continue
-    relative = entry.get("path")
-    if not isinstance(relative, str) or not relative or relative.startswith("/") or ".." in Path(relative).parts:
-        fail(f"Path manifesto non sicuro: {relative!r}")
+    relative_path = entry.get("path")
+    if not isinstance(relative_path, str) or not relative_path or relative_path.startswith("/") or ".." in Path(relative_path).parts:
+        fail(f"Path manifesto non sicuro: {relative_path!r}")
         continue
-    if relative in manifest_paths:
-        fail(f"Voce duplicata nel manifesto: {relative}")
+    if relative_path in manifest_paths:
+        fail(f"Voce duplicata nel manifesto: {relative_path}")
         continue
-    manifest_paths.add(relative)
-    path = ROOT / relative
+    manifest_paths.add(relative_path)
+    path = ROOT / relative_path
     if not path.is_file():
-        fail(f"File del manifesto mancante: {relative}")
+        fail(f"File del manifesto mancante: {relative_path}")
         continue
     if entry.get("size") != path.stat().st_size:
-        fail(f"Dimensione manifesto errata per {relative}")
+        fail(f"Dimensione manifesto errata per {relative_path}")
     if entry.get("sha256") != sha256(path):
-        fail(f"Checksum manifesto errato per {relative}")
+        fail(f"Checksum manifesto errato per {relative_path}")
 
 repository_files = {
     path.relative_to(ROOT).as_posix()
