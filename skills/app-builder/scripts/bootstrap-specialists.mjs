@@ -13,6 +13,11 @@ import { dirname, join, relative, resolve } from "node:path";
 
 const SECURITY_REPOSITORY = "https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git";
 const SECURITY_COMMIT = "673da1f3b0b7be34ffc9624ef3858fe45f1c3bed";
+const MARKETING_REPOSITORY = "https://github.com/coreyhaines31/marketingskills.git";
+const MARKETING_COMMIT = "7868cb9251fad80a73d26e488a5ad5f6c4a9f335";
+const FIND_SKILLS_REPOSITORY = "vercel-labs/skills";
+const SUPERPOWERS_REPOSITORY = "obra/superpowers";
+
 const args = process.argv.slice(2);
 const valueOf = (flag, fallback) => {
   const index = args.indexOf(flag);
@@ -39,13 +44,16 @@ const git = isWindows ? "git.exe" : "git";
 const appBuilder = join(project, ".app-builder");
 const vendorRoot = join(appBuilder, "vendor");
 const securityRoot = join(vendorRoot, "anthropic-cybersecurity-skills");
+const marketingRoot = join(vendorRoot, "marketing-skills");
 const reportPath = join(appBuilder, "bootstrap-report.md");
 const registryPath = join(appBuilder, "specialists.json");
 const securityIndexPath = join(appBuilder, "security-catalog", "index.json");
+const marketingIndexPath = join(appBuilder, "marketing-catalog", "index.json");
 mkdirSync(appBuilder, { recursive: true });
 
 const results = [];
 const portable = (value) => String(value ?? "").split(project).join(".");
+
 function run(label, command, commandArgs, cwd = project) {
   const rendered = [command, ...commandArgs].join(" ");
   if (dryRun) {
@@ -61,7 +69,7 @@ function run(label, command, commandArgs, cwd = project) {
   const output = `${result.stdout || ""}\n${result.stderr || ""}`
     .trim()
     .replace(/\r?\n/g, " ")
-    .slice(0, 1200);
+    .slice(0, 1600);
   const ok = result.status === 0;
   results.push({
     label,
@@ -74,12 +82,16 @@ function run(label, command, commandArgs, cwd = project) {
 
 function protectLocalCacheFromGit() {
   const gitExclude = join(project, ".git", "info", "exclude");
-  const entries = [".app-builder/vendor/", ".app-builder/security-catalog/"];
+  const entries = [
+    ".app-builder/vendor/",
+    ".app-builder/security-catalog/",
+    ".app-builder/marketing-catalog/",
+  ];
   if (dryRun) {
     results.push({
       label: "Git local exclude",
       status: "dry_run",
-      command: "append .app-builder local caches to .git/info/exclude",
+      command: "append Luna local caches to .git/info/exclude",
       detail: "nessuna modifica eseguita",
     });
     return;
@@ -94,7 +106,8 @@ function protectLocalCacheFromGit() {
     return;
   }
   const current = readFileSync(gitExclude, "utf8");
-  const missing = entries.filter((entry) => !current.split(/\r?\n/).includes(entry));
+  const lines = current.split(/\r?\n/);
+  const missing = entries.filter((entry) => !lines.includes(entry));
   if (missing.length === 0) {
     results.push({
       label: "Git local exclude",
@@ -105,21 +118,18 @@ function protectLocalCacheFromGit() {
     return;
   }
   const prefix = current.endsWith("\n") || current.length === 0 ? "" : "\n";
-  appendFileSync(
-    gitExclude,
-    `${prefix}# Luna local specialist cache\n${missing.join("\n")}\n`,
-    "utf8",
-  );
+  appendFileSync(gitExclude, `${prefix}# Luna local specialist cache\n${missing.join("\n")}\n`, "utf8");
   results.push({
     label: "Git local exclude",
     status: "ready",
     command: "append .git/info/exclude",
-    detail: "cache vendor e indice sicurezza esclusi senza modificare .gitignore",
+    detail: "cache vendor e indici esclusi senza modificare .gitignore",
   });
 }
 protectLocalCacheFromGit();
 
 const installs = [
+  ["Find Skills", FIND_SKILLS_REPOSITORY, "find-skills"],
   ["PRD Generator", "jamesrochabrun/skills", "prd-generator"],
   ["Product Marketing", "coreyhaines31/marketingskills", "product-marketing"],
   ["Marketing Copywriting", "coreyhaines31/marketingskills", "copywriting"],
@@ -131,6 +141,7 @@ const installs = [
 for (const [label, repository, skill] of installs) {
   run(label, npx, ["skills", "add", repository, "--skill", skill, "-a", "codex", "--copy", "-y"]);
 }
+run("Superpowers engineering process", npx, ["skills", "add", SUPERPOWERS_REPOSITORY, "-a", "codex", "--copy", "-y"]);
 run("Impeccable UX writing and audit", npx, ["skills", "add", "pbakaus/impeccable", "-a", "codex", "--copy", "-y"]);
 run("UI UX Pro Max", npx, ["-y", "uipro-cli", "init", "--ai", "codex"]);
 
@@ -143,47 +154,60 @@ function gitHead(folder) {
   return result.status === 0 ? result.stdout.trim() : null;
 }
 
-if (dryRun) {
-  results.push({
-    label: "Cybersecurity catalog",
-    status: "dry_run",
-    command: `git clone/fetch ${SECURITY_REPOSITORY} @ ${SECURITY_COMMIT}`,
-    detail: "download completo in .app-builder/vendor; nessuna registrazione in blocco come skill attive",
-  });
-} else {
-  mkdirSync(vendorRoot, { recursive: true });
-  const current = gitHead(securityRoot);
-  if (!current && !existsSync(securityRoot)) {
-    const cloned = run("Cybersecurity catalog clone", git, [
-      "clone",
-      "--filter=blob:none",
-      "--no-checkout",
-      SECURITY_REPOSITORY,
-      securityRoot,
-    ]);
-    if (cloned) {
-      run("Cybersecurity catalog pin", git, ["-C", securityRoot, "fetch", "--depth", "1", "origin", SECURITY_COMMIT]);
-      run("Cybersecurity catalog checkout", git, ["-C", securityRoot, "checkout", "--detach", SECURITY_COMMIT]);
-    }
-  } else if (!current) {
+function ensurePinnedCatalog({ label, repository, commit, root }) {
+  if (dryRun) {
     results.push({
-      label: "Cybersecurity catalog",
-      status: "failed_optional",
-      command: `git -C ${securityRoot} rev-parse HEAD`,
-      detail: "cartella esistente ma non è un clone Git valido; Luna usa Codex Security e fallback nativo",
+      label,
+      status: "dry_run",
+      command: `git clone/fetch ${repository} @ ${commit}`,
+      detail: "download completo in .app-builder/vendor; attivazione on_demand_only",
     });
-  } else if (current !== SECURITY_COMMIT && refresh) {
-    run("Cybersecurity catalog refresh", git, ["-C", securityRoot, "fetch", "--depth", "1", "origin", SECURITY_COMMIT]);
-    run("Cybersecurity catalog checkout", git, ["-C", securityRoot, "checkout", "--detach", SECURITY_COMMIT]);
-  } else {
-    results.push({
-      label: "Cybersecurity catalog",
-      status: current === SECURITY_COMMIT ? "ready" : "installed_different_pin",
-      command: `git -C ${securityRoot} rev-parse HEAD`,
-      detail: current,
-    });
+    return;
   }
+  mkdirSync(vendorRoot, { recursive: true });
+  const current = gitHead(root);
+  if (!current && !existsSync(root)) {
+    const cloned = run(`${label} clone`, git, ["clone", "--filter=blob:none", "--no-checkout", repository, root]);
+    if (cloned) {
+      run(`${label} pin`, git, ["-C", root, "fetch", "--depth", "1", "origin", commit]);
+      run(`${label} checkout`, git, ["-C", root, "checkout", "--detach", commit]);
+    }
+    return;
+  }
+  if (!current) {
+    results.push({
+      label,
+      status: "failed_optional",
+      command: `git -C ${root} rev-parse HEAD`,
+      detail: "cartella esistente ma non è un clone Git valido; Luna usa i fallback nativi",
+    });
+    return;
+  }
+  if (current !== commit && refresh) {
+    run(`${label} refresh`, git, ["-C", root, "fetch", "--depth", "1", "origin", commit]);
+    run(`${label} checkout`, git, ["-C", root, "checkout", "--detach", commit]);
+    return;
+  }
+  results.push({
+    label,
+    status: current === commit ? "ready" : "installed_different_pin",
+    command: `git -C ${root} rev-parse HEAD`,
+    detail: current,
+  });
 }
+
+ensurePinnedCatalog({
+  label: "Cybersecurity catalog",
+  repository: SECURITY_REPOSITORY,
+  commit: SECURITY_COMMIT,
+  root: securityRoot,
+});
+ensurePinnedCatalog({
+  label: "Marketing catalog",
+  repository: MARKETING_REPOSITORY,
+  commit: MARKETING_COMMIT,
+  root: marketingRoot,
+});
 
 function frontmatter(text) {
   const match = text.match(/^---\s*\n([\s\S]*?)\n---/);
@@ -193,7 +217,7 @@ function field(block, name) {
   const match = block.match(new RegExp(`^${name}:\\s*["']?([^\\n"']+)`, "m"));
   return match ? match[1].trim() : null;
 }
-function classify(name) {
+function classifySecurity(name) {
   const blocked = /(credential-theft|deploying-malware|ransomware-attack|destructive|data-exfiltration)/i;
   const restricted = /(exploiting|phishing|bypass|persistence|lateral-movement|command-and-control|\bc2\b|credential|evasion|red-team)/i;
   const defensive = /^(implementing|securing|scanning|generating|testing|performing|detecting|hardening|building-security|conducting-security)/i;
@@ -203,33 +227,43 @@ function classify(name) {
   return "dual_use";
 }
 
-let securityCount = 0;
-if (!dryRun && existsSync(join(securityRoot, "skills"))) {
-  const entries = [];
-  for (const folder of readdirSync(join(securityRoot, "skills"), { withFileTypes: true })) {
+function findSkillFiles(root) {
+  const candidates = [join(root, "skills"), root];
+  const base = candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isDirectory());
+  if (!base) return [];
+  const files = [];
+  for (const folder of readdirSync(base, { withFileTypes: true })) {
     if (!folder.isDirectory()) continue;
-    const skillPath = join(securityRoot, "skills", folder.name, "SKILL.md");
-    if (!existsSync(skillPath)) continue;
-    const block = frontmatter(readFileSync(skillPath, "utf8"));
+    const direct = join(base, folder.name, "SKILL.md");
+    if (existsSync(direct)) files.push({ folder: folder.name, path: direct });
+  }
+  return files;
+}
+
+function buildCatalogIndex({ root, repository, commit, indexPath, kind }) {
+  if (dryRun || !existsSync(root)) return 0;
+  const entries = [];
+  for (const item of findSkillFiles(root)) {
+    const block = frontmatter(readFileSync(item.path, "utf8"));
+    const name = field(block, "name") || item.folder;
     entries.push({
-      name: field(block, "name") || folder.name,
-      folder: folder.name,
+      name,
+      folder: item.folder,
       description: field(block, "description"),
       domain: field(block, "domain"),
       subdomain: field(block, "subdomain"),
-      classification: classify(folder.name),
-      path: relative(securityRoot, skillPath).replaceAll("\\", "/"),
+      classification: kind === "security" ? classifySecurity(name) : "approved_marketing_reference",
+      path: relative(root, item.path).replaceAll("\\", "/"),
     });
   }
   entries.sort((a, b) => a.name.localeCompare(b.name));
-  securityCount = entries.length;
-  mkdirSync(dirname(securityIndexPath), { recursive: true });
+  mkdirSync(dirname(indexPath), { recursive: true });
   writeFileSync(
-    securityIndexPath,
+    indexPath,
     JSON.stringify(
       {
-        repository: SECURITY_REPOSITORY,
-        commit: gitHead(securityRoot),
+        repository,
+        commit: gitHead(root) || commit,
         generatedAt: new Date().toISOString(),
         activation: "on_demand_only",
         count: entries.length,
@@ -240,7 +274,23 @@ if (!dryRun && existsSync(join(securityRoot, "skills"))) {
     ) + "\n",
     "utf8",
   );
+  return entries.length;
 }
+
+const securityCount = buildCatalogIndex({
+  root: securityRoot,
+  repository: SECURITY_REPOSITORY,
+  commit: SECURITY_COMMIT,
+  indexPath: securityIndexPath,
+  kind: "security",
+});
+const marketingCount = buildCatalogIndex({
+  root: marketingRoot,
+  repository: MARKETING_REPOSITORY,
+  commit: MARKETING_COMMIT,
+  indexPath: marketingIndexPath,
+  kind: "marketing",
+});
 
 const safeResults = results.map((item) => ({
   ...item,
@@ -252,11 +302,40 @@ const registry = {
   project: ".",
   consent: approved,
   dryRun,
+  visibleInterface: "luna_only",
+  stateOwner: "luna",
+  roles: [
+    "market_analyst",
+    "product_marketing",
+    "cto",
+    "support_feedback",
+    "data_analyst",
+    "operations_lead",
+  ],
+  dynamicDiscovery: {
+    repository: FIND_SKILLS_REPOSITORY,
+    skill: "find-skills",
+    installation: "search_then_review_then_consent",
+  },
+  engineeringProcess: {
+    repository: SUPERPOWERS_REPOSITORY,
+    owner: "cto_role",
+    authority: "process_only",
+  },
   securityCatalog: {
     repository: SECURITY_REPOSITORY,
     pinnedCommit: SECURITY_COMMIT,
     path: relative(project, securityRoot).replaceAll("\\", "/"),
+    index: relative(project, securityIndexPath).replaceAll("\\", "/"),
     indexedSkills: securityCount,
+    activation: "on_demand_only",
+  },
+  marketingCatalog: {
+    repository: MARKETING_REPOSITORY,
+    pinnedCommit: MARKETING_COMMIT,
+    path: relative(project, marketingRoot).replaceAll("\\", "/"),
+    index: relative(project, marketingIndexPath).replaceAll("\\", "/"),
+    indexedSkills: marketingCount,
     activation: "on_demand_only",
   },
   results: safeResults,
@@ -271,6 +350,8 @@ const lines = [
   `- Consenso esplicito: ${approved}`,
   `- Dry run: ${dryRun}`,
   `- Skill sicurezza indicizzate: ${securityCount || "non calcolate"}`,
+  `- Skill marketing indicizzate: ${marketingCount || "non calcolate"}`,
+  "- Interfaccia visibile: Luna",
   "",
   "| Capability | Stato | Comando | Evidenza |",
   "|---|---|---|---|",
@@ -281,7 +362,7 @@ for (const item of safeResults) {
 }
 lines.push(
   "",
-  "> Il catalogo sicurezza è locale ma non viene caricato interamente come skill attive. Luna seleziona i playbook pertinenti e richiede consenso separato prima di strumenti invasivi.",
+  "> I cataloghi sicurezza e marketing sono locali ma non vengono caricati interamente come trigger attivi. Luna seleziona il minimo playbook pertinente. Find Skills cerca candidati ma non li installa senza il contratto di consenso. Superpowers governa il processo engineering, non stato e scope.",
   "",
 );
 writeFileSync(reportPath, lines.join("\n"), "utf8");
