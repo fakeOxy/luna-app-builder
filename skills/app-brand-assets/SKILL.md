@@ -41,11 +41,12 @@ Leggi:
 3. Non dichiarare disponibile un nome, dominio o marchio senza verifica appropriata.
 4. Non incorporare font o asset senza controllarne licenza e provenienza.
 5. Non generare loghi, icone o immagini senza consenso quando richiedono strumenti esterni.
-6. Non usare asset raster travestiti da SVG o file placeholder presentati come finali.
-7. Ogni colore e font deve avere un ruolo, non soltanto un codice esadecimale grazioso.
-8. Considera contrasto, tema scuro, riduzione trasparenze e leggibilità.
-9. Se l'app usa fotografie o illustrazioni, definisci stile, diritti e fallback.
-10. Non sostituire automaticamente asset firmati, pubblicati o collegati agli store.
+6. L'installazione gratuita di una skill non autorizza eventuali crediti, MCP o chiamate a pagamento.
+7. Non usare asset raster travestiti da SVG o file placeholder presentati come finali.
+8. Ogni colore e font deve avere un ruolo, non soltanto un codice esadecimale grazioso.
+9. Considera contrasto, tema scuro, riduzione trasparenze e leggibilità.
+10. Se l'app usa fotografie o illustrazioni, definisci stile, diritti e fallback.
+11. Non sostituire automaticamente asset firmati, pubblicati o collegati agli store.
 
 ## Workflow
 
@@ -107,13 +108,16 @@ rinominare asset esistenti senza una migrazione esplicita.
 
 Quando disponibili:
 
-- `ckm:design`/`design` per identità, logo, icone e asset;
+- `build-a-brand` da `Pika-Labs/Pika-Plugins` per strategia e identità; usa il percorso rapido e
+  locale quando basta, ma non avvia strumenti o crediti Pika senza un consenso specifico;
+- `design` per identità, logo, icone e asset;
 - `design-system` per token e specifiche;
 - `ui-ux-pro-max` per palette, font e coerenza di prodotto;
 - strumenti di generazione immagini soltanto con consenso.
 
-Il bootstrap di Luna installa gli specialisti approvati. Questa skill conserva il brief, le licenze,
-il gate e la fonte di verità del progetto.
+Il bootstrap di Luna installa gli specialisti approvati. Questa skill conserva brief, licenze, gate
+e fonte di verità. Se lo specialista esterno richiede capability non disponibili o pagate, usa il
+fallback nativo e registra il limite invece di fermare l'intero progetto.
 
 ## Gate
 
@@ -134,5 +138,5 @@ Mostra:
 1. direzione scelta;
 2. elemento distintivo;
 3. asset mancanti;
-4. rischio di licenza o disponibilità;
+4. rischio di licenza, disponibilità o costo esterno;
 5. prossimo passo.
