@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 
 const SECURITY_REPOSITORY = "https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git";
 const SECURITY_COMMIT = "673da1f3b0b7be34ffc9624ef3858fe45f1c3bed";
 const args = process.argv.slice(2);
-const valueOf = (flag, fallback = undefined) => {
+const valueOf = (flag, fallback) => {
   const index = args.indexOf(flag);
   return index >= 0 ? args[index + 1] : fallback;
 };
@@ -49,27 +49,41 @@ function run(label, command, commandArgs, cwd = project) {
     shell: false,
     maxBuffer: 10 * 1024 * 1024,
   });
-  const output = `${result.stdout || ""}\n${result.stderr || ""}`.trim().replace(/\r?\n/g, " ").slice(0, 1200);
+  const output = `${result.stdout || ""}\n${result.stderr || ""}`
+    .trim()
+    .replace(/\r?\n/g, " ")
+    .slice(0, 1200);
   const ok = result.status === 0;
-  results.push({ label, status: ok ? "ready" : "failed_optional", command: rendered, detail: output || `exit ${result.status}` });
+  results.push({
+    label,
+    status: ok ? "ready" : "failed_optional",
+    command: rendered,
+    detail: output || `exit ${result.status}`,
+  });
   return ok;
 }
 
-const externalInstalls = [
-  ["PRD Generator", npx, ["skills", "add", "jamesrochabrun/skills", "--skill", "prd-generator", "-a", "codex", "--copy", "-y"]],
-  ["Marketing copy skills", npx, ["skills", "add", "coreyhaines31/marketingskills", "--skill", "product-marketing", "copywriting", "copy-editing", "-a", "codex", "--copy", "-y"]],
-  ["Impeccable UX writing and audit", npx, ["skills", "add", "pbakaus/impeccable", "-a", "codex", "--copy", "-y"]],
-  ["UI UX Pro Max", npx, ["-y", "uipro-cli", "init", "--ai", "codex"]],
-  ["Brand and design helpers", npx, ["skills", "add", "nextlevelbuilder/ui-ux-pro-max-skill", "--skill", "design", "brand", "design-system", "-a", "codex", "--copy", "-y"]],
+const installs = [
+  ["PRD Generator", "jamesrochabrun/skills", "prd-generator"],
+  ["Product Marketing", "coreyhaines31/marketingskills", "product-marketing"],
+  ["Marketing Copywriting", "coreyhaines31/marketingskills", "copywriting"],
+  ["Copy Editing", "coreyhaines31/marketingskills", "copy-editing"],
+  ["Brand", "nextlevelbuilder/ui-ux-pro-max-skill", "brand"],
+  ["Design", "nextlevelbuilder/ui-ux-pro-max-skill", "design"],
+  ["Design System", "nextlevelbuilder/ui-ux-pro-max-skill", "design-system"],
 ];
-
-for (const [label, command, commandArgs] of externalInstalls) {
-  run(label, command, commandArgs);
+for (const [label, repository, skill] of installs) {
+  run(label, npx, ["skills", "add", repository, "--skill", skill, "-a", "codex", "--copy", "-y"]);
 }
+run("Impeccable UX writing and audit", npx, ["skills", "add", "pbakaus/impeccable", "-a", "codex", "--copy", "-y"]);
+run("UI UX Pro Max", npx, ["-y", "uipro-cli", "init", "--ai", "codex"]);
 
 function gitHead(folder) {
   if (!existsSync(folder)) return null;
-  const result = spawnSync(git, ["-C", folder, "rev-parse", "HEAD"], { encoding: "utf8", shell: false });
+  const result = spawnSync(git, ["-C", folder, "rev-parse", "HEAD"], {
+    encoding: "utf8",
+    shell: false,
+  });
   return result.status === 0 ? result.stdout.trim() : null;
 }
 
@@ -78,17 +92,30 @@ if (dryRun) {
     label: "Cybersecurity catalog",
     status: "dry_run",
     command: `git clone/fetch ${SECURITY_REPOSITORY} @ ${SECURITY_COMMIT}`,
-    detail: "il catalogo completo verrebbe scaricato in .app-builder/vendor senza registrare 817 trigger attivi",
+    detail: "download completo in .app-builder/vendor; nessuna registrazione in blocco come skill attive",
   });
 } else {
   mkdirSync(vendorRoot, { recursive: true });
   const current = gitHead(securityRoot);
-  if (!current) {
-    const cloned = run("Cybersecurity catalog clone", git, ["clone", "--filter=blob:none", "--no-checkout", SECURITY_REPOSITORY, securityRoot]);
+  if (!current && !existsSync(securityRoot)) {
+    const cloned = run("Cybersecurity catalog clone", git, [
+      "clone",
+      "--filter=blob:none",
+      "--no-checkout",
+      SECURITY_REPOSITORY,
+      securityRoot,
+    ]);
     if (cloned) {
       run("Cybersecurity catalog pin", git, ["-C", securityRoot, "fetch", "--depth", "1", "origin", SECURITY_COMMIT]);
       run("Cybersecurity catalog checkout", git, ["-C", securityRoot, "checkout", "--detach", SECURITY_COMMIT]);
     }
+  } else if (!current) {
+    results.push({
+      label: "Cybersecurity catalog",
+      status: "failed_optional",
+      command: `git -C ${securityRoot} rev-parse HEAD`,
+      detail: "cartella esistente ma non è un clone Git valido; Luna usa Codex Security e fallback nativo",
+    });
   } else if (current !== SECURITY_COMMIT && refresh) {
     run("Cybersecurity catalog refresh", git, ["-C", securityRoot, "fetch", "--depth", "1", "origin", SECURITY_COMMIT]);
     run("Cybersecurity catalog checkout", git, ["-C", securityRoot, "checkout", "--detach", SECURITY_COMMIT]);
@@ -102,12 +129,12 @@ if (dryRun) {
   }
 }
 
-function firstFrontmatter(text) {
+function frontmatter(text) {
   const match = text.match(/^---\s*\n([\s\S]*?)\n---/);
   return match ? match[1] : "";
 }
-function field(frontmatter, name) {
-  const match = frontmatter.match(new RegExp(`^${name}:\\s*["']?([^\\n"']+)`, "m"));
+function field(block, name) {
+  const match = block.match(new RegExp(`^${name}:\\s*["']?([^\\n"']+)`, "m"));
   return match ? match[1].trim() : null;
 }
 function classify(name) {
@@ -127,16 +154,15 @@ if (!dryRun && existsSync(join(securityRoot, "skills"))) {
     if (!folder.isDirectory()) continue;
     const skillPath = join(securityRoot, "skills", folder.name, "SKILL.md");
     if (!existsSync(skillPath)) continue;
-    const text = readFileSync(skillPath, "utf8");
-    const frontmatter = firstFrontmatter(text);
+    const block = frontmatter(readFileSync(skillPath, "utf8"));
     entries.push({
-      name: field(frontmatter, "name") || folder.name,
+      name: field(block, "name") || folder.name,
       folder: folder.name,
-      description: field(frontmatter, "description"),
-      domain: field(frontmatter, "domain"),
-      subdomain: field(frontmatter, "subdomain"),
+      description: field(block, "description"),
+      domain: field(block, "domain"),
+      subdomain: field(block, "subdomain"),
       classification: classify(folder.name),
-      path: skillPath,
+      path: relative(securityRoot, skillPath).replaceAll("\\", "/"),
     });
   }
   entries.sort((a, b) => a.name.localeCompare(b.name));
@@ -144,14 +170,18 @@ if (!dryRun && existsSync(join(securityRoot, "skills"))) {
   mkdirSync(dirname(securityIndexPath), { recursive: true });
   writeFileSync(
     securityIndexPath,
-    JSON.stringify({
-      repository: SECURITY_REPOSITORY,
-      commit: gitHead(securityRoot),
-      generatedAt: new Date().toISOString(),
-      activation: "on_demand_only",
-      count: entries.length,
-      entries,
-    }, null, 2) + "\n",
+    JSON.stringify(
+      {
+        repository: SECURITY_REPOSITORY,
+        commit: gitHead(securityRoot),
+        generatedAt: new Date().toISOString(),
+        activation: "on_demand_only",
+        count: entries.length,
+        entries,
+      },
+      null,
+      2,
+    ) + "\n",
     "utf8",
   );
 }
@@ -190,7 +220,7 @@ for (const item of results) {
 }
 lines.push(
   "",
-  "> Il catalogo sicurezza è disponibile localmente ma non viene caricato interamente come skill attive. Luna seleziona i playbook pertinenti e richiede consenso separato prima di strumenti invasivi.",
+  "> Il catalogo sicurezza è locale ma non viene caricato interamente come skill attive. Luna seleziona i playbook pertinenti e richiede consenso separato prima di strumenti invasivi.",
   "",
 );
 writeFileSync(reportPath, lines.join("\n"), "utf8");
