@@ -10,8 +10,8 @@
   "project": {
     "name": "{PROJECT_NAME}",
     "mode": "{PROJECT_MODE}",
-    "origin": "new",
-    "adoptionStatus": "not_applicable",
+    "origin": "{PROJECT_ORIGIN}",
+    "adoptionStatus": "{ADOPTION_STATUS}",
     "platforms": [],
     "stateOwner": "current-session"
   },
