@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Brand & Assets"
+  short_description: "Brand coerente e asset realmente utilizzabili"
+  default_prompt: "Usa $app-brand-assets per definire o adottare posizionamento, voce, sistema visivo e inventario asset senza sostituire il brand esistente fuori scope."
