@@ -1,7 +1,7 @@
 {
   "name": "luna-app-builder",
   "version": "2.0.0-beta.1",
-  "description": "Luna crea, adotta ed evolve app con routing autonomo, specialisti di prodotto e design, sicurezza proporzionata e vertical slice verificabili.",
+  "description": "Luna crea, adotta ed evolve app con routing autonomo, ruoli interni, specialisti esterni verificati, analytics, sicurezza proporzionata e vertical slice testabili.",
   "author": {
     "name": "Massimiliano"
   },
@@ -18,18 +18,21 @@
     "accessibility",
     "brand",
     "copywriting",
+    "analytics",
+    "measurement",
+    "superpowers",
     "security",
     "release"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Luna App Builder",
-    "shortDescription": "Dall'idea o dal codice esistente a un'app verificata",
-    "longDescription": "Luna capisce autonomamente dove si trova il progetto, prepara gli specialisti dopo consenso, preserva stack e convenzioni esistenti e orchestra discovery, MVP, brand, UX, copy, sviluppo, sicurezza, test, store e manutenzione.",
+    "shortDescription": "Una sola Luna, dall'idea o dal codice a un'app verificata",
+    "longDescription": "Luna capisce autonomamente dove si trova il progetto, prepara specialisti e cataloghi dopo consenso, preserva stack e convenzioni esistenti e orchestra discovery, MVP, brand, UX, copy, analytics, sviluppo, sicurezza, test, store e manutenzione.",
     "developerName": "Massimiliano",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
-    "defaultPrompt": "Usa $app-builder. Capisci autonomamente se questo progetto è nuovo o esistente, verifica strumenti e stato, poi attiva il prossimo specialista necessario senza chiedermi di scegliere una skill.",
+    "defaultPrompt": "Usa $app-builder. Capisci autonomamente se questo progetto è nuovo o esistente, verifica strumenti e stato, assegna il ruolo interno e attiva il prossimo specialista necessario senza chiedermi di scegliere una skill.",
     "brandColor": "#6256D9"
   }
 }
