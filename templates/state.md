@@ -15,8 +15,8 @@
 - Name: {PROJECT_NAME}
 - One-line outcome: da definire
 - Repository root: `{PROJECT_ROOT}`
-- Project origin: new
-- Adoption status: not_applicable
+- Project origin: {PROJECT_ORIGIN}
+- Adoption status: {ADOPTION_STATUS}
 - Adoption report: `.app-builder/adoption-report.md`
 - Project mode: {PROJECT_MODE}
 - Product type: da definire
