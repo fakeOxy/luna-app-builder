@@ -71,13 +71,18 @@ Al primo accesso Luna:
 Il bootstrap prepara:
 
 - `prd-generator` da `jamesrochabrun/skills`;
-- UI/UX Pro Max e le skill `brand`, `design`, `design-system`;
+- UI/UX Pro Max e le skill `design` e `design-system`;
+- `build-a-brand` da `Pika-Labs/Pika-Plugins`;
 - Impeccable per critica UX, accessibilità e UX writing;
 - `product-marketing`, `copywriting` e `copy-editing` da Marketing Skills;
 - il catalogo `mukul975/Anthropic-Cybersecurity-Skills` fissato a un commit verificato.
 
-Il consenso al bootstrap non autorizza login, Docker, scanner, upload, penetration testing o
-pubblicazione. Questi restano passaggi separati.
+Le skill vengono installate gratuitamente, ma eventuali MCP, API, crediti o strumenti a pagamento
+richiesti in seguito non vengono mai avviati dal consenso iniziale. Il bootstrap protegge inoltre le
+cache locali tramite `.git/info/exclude`, senza modificare il `.gitignore` condiviso del progetto.
+
+Il consenso al bootstrap non autorizza login, crediti Pika, Docker, scanner, upload, penetration
+testing o pubblicazione. Questi restano passaggi separati.
 
 ## Le 817 skill di sicurezza
 
