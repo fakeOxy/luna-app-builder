@@ -10,19 +10,20 @@ Luna guida anche chi non ha esperienza tecnica dall'idea o da un progetto esiste
 
 Versione pubblicata: `2.0.0-beta.1`.
 
-Il branch di sviluppo della futura `v2.0.0-beta.2` aggiunge routing autonomo, adozione non invasiva,
-specialisti di prodotto/design/copy e un catalogo sicurezza locale. Finché la relativa pull request
-non viene validata e unita, la release pubblica resta la beta precedente.
+La pull request della futura `v2.0.0-beta.2` aggiunge routing autonomo, adozione non invasiva,
+ruoli interni, specialisti di prodotto/design/copy/analytics, Superpowers, ricerca dinamica delle
+skill e cataloghi marketing e sicurezza locali. Finché non viene validata e unita, la release
+pubblica resta la beta precedente.
 
-## Come lavora Luna
+## Una sola Luna
 
-L'utente non deve conoscere o scegliere i nomi delle skill. Un comando generico come:
+L'utente non deve conoscere ruoli, agenti o nomi delle skill. Un comando generico come:
 
 ```text
 $app-builder Voglio creare una nuova app.
 ```
 
-fa partire questo percorso proporzionato:
+fa partire un percorso proporzionato:
 
 ```text
 Doctor e bootstrap
@@ -31,20 +32,23 @@ Doctor e bootstrap
 → brand e asset
 → UX e accessibilità
 → copywriting
+→ measurement plan
 → design e architettura
 → sicurezza
+→ piano engineering
 → implementazione in vertical slice
 → QA, beta, store e operazioni
 ```
 
-Luna legge stato, codice e rischi, usa lo specialista necessario e continua automaticamente
-soltanto nelle azioni ordinarie, reversibili e già autorizzate. Installazioni, account, spese,
-pubblicazioni, dati reali e strumenti invasivi richiedono consenso.
+Luna resta l'unica interfaccia visibile e il `state owner`. Assegna internamente il ruolo utile,
+chiama il minimo specialista necessario, verifica il risultato e restituisce una sola sintesi con un
+solo prossimo passo. Installazioni, account, spese, pubblicazioni, dati reali e strumenti invasivi
+richiedono consenso.
 
-## Undici skill native
+## Dodici skill native
 
-- `$app-builder`: orchestrazione end-to-end e routing autonomo;
-- `$app-builder-doctor`: ambiente, bootstrap, plugin e post-check;
+- `$app-builder`: orchestrazione end-to-end, ruoli e routing autonomo;
+- `$app-builder-doctor`: ambiente, bootstrap, plugin, cataloghi e post-check;
 - `$app-builder-handoff`: coordinamento Design/Sviluppo;
 - `$app-builder-about`: versione, crediti e integrità;
 - `$app-product-discovery`: problema, utenti, evidenze e decisione prima del codice;
@@ -53,10 +57,26 @@ pubblicazioni, dati reali e strumenti invasivi richiedono consenso.
 - `$app-brand-assets`: posizionamento, voce, sistema visivo e inventario asset;
 - `$app-copywriting`: microcopy, onboarding, errori, notifiche e store copy;
 - `$app-project-adoption`: innesto read-only nei progetti esistenti;
-- `$app-security-orchestrator`: regia sicurezza con Codex Security e playbook selettivi.
+- `$app-security-orchestrator`: regia sicurezza con Codex Security e playbook selettivi;
+- `$app-analytics-measurement`: outcome, eventi, funnel, baseline, soglie e privacy.
 
-Le skill native possiedono stato, gate, consenso e fallback. Gli specialisti community ampliano la
-profondità, ma non decidono da soli scope o avanzamento.
+Le skill native possiedono stato, gate, consenso e fallback. Gli specialisti community aumentano la
+profondità, ma non decidono scope o avanzamento.
+
+## Sei ruoli interni
+
+Luna può operare internamente come:
+
+- Market Analyst;
+- Product Marketing;
+- CTO;
+- Support & Feedback;
+- Data Analyst;
+- Operations Lead.
+
+`Operations Lead` è sempre Luna. I ruoli non sono sei chat da amministrare e non modificano lo
+stato centrale. Prima di ogni delega Luna registra motivo, input, percorsi consentiti, output atteso,
+rischio e consenso.
 
 ## Primo accesso e bootstrap automatico
 
@@ -64,25 +84,73 @@ Al primo accesso Luna:
 
 1. esegue il Doctor senza installare nulla;
 2. capisce se la cartella è nuova o contiene già un progetto;
-3. presenta una sola richiesta di consenso per il bootstrap;
-4. dopo approvazione scarica automaticamente gli specialisti gratuiti selezionati;
-5. ripete il Doctor e registra ciò che funziona e i fallback.
+3. presenta una sola richiesta di consenso per il bootstrap gratuito dichiarato;
+4. dopo approvazione prepara automaticamente specialisti e cataloghi;
+5. ripete il Doctor e registra capacità riuscite, fallback e limiti.
 
 Il bootstrap prepara:
 
-- `prd-generator` da `jamesrochabrun/skills`;
-- UI/UX Pro Max e le skill `design` e `design-system`;
-- `build-a-brand` da `Pika-Labs/Pika-Plugins`;
-- Impeccable per critica UX, accessibilità e UX writing;
-- `product-marketing`, `copywriting` e `copy-editing` da Marketing Skills;
-- il catalogo `mukul975/Anthropic-Cybersecurity-Skills` fissato a un commit verificato.
+- `find-skills` da `vercel-labs/skills`;
+- Superpowers da `obra/superpowers` come processo engineering;
+- `prd-generator`;
+- UI/UX Pro Max, `design` e `design-system`;
+- `build-a-brand`;
+- Impeccable;
+- `product-marketing`, `copywriting` e `copy-editing`;
+- il catalogo completo Marketing Skills;
+- il catalogo completo Anthropic Cybersecurity Skills.
 
-Le skill vengono installate gratuitamente, ma eventuali MCP, API, crediti o strumenti a pagamento
-richiesti in seguito non vengono mai avviati dal consenso iniziale. Il bootstrap protegge inoltre le
-cache locali tramite `.git/info/exclude`, senza modificare il `.gitignore` condiviso del progetto.
+Le cache vendor vengono escluse tramite `.git/info/exclude`, senza modificare il `.gitignore`
+condiviso. Registro e report usano percorsi relativi.
 
-Il consenso al bootstrap non autorizza login, crediti Pika, Docker, scanner, upload, penetration
-testing o pubblicazione. Questi restano passaggi separati.
+Il consenso iniziale non autorizza login, crediti, API, Docker, scanner, upload, penetration test,
+push o pubblicazioni.
+
+## Find Skills
+
+`find-skills` viene usata soltanto quando Luna registra un `capability_gap` non coperto da:
+
+1. skill native;
+2. plugin ufficiali;
+3. cataloghi locali;
+4. fallback già disponibili.
+
+Luna valuta massimo tre candidati e controlla repository, licenza, manutenzione, compatibilità,
+script, servizi richiesti e rischio. Una nuova sorgente non viene installata senza consenso. Il
+numero di download è un segnale, non una benedizione papale sulla supply chain.
+
+## Superpowers
+
+Superpowers organizza il lavoro del ruolo CTO per modifiche non banali:
+
+```text
+brainstorming e specifica
+→ piano scritto
+→ TDD quando applicabile
+→ implementazione
+→ debugging sistematico
+→ verifica prima del completamento
+```
+
+Può coordinare subagenti su task indipendenti, ma Luna conserva scope, stato, gate e comunicazione
+finale.
+
+## Catalogo marketing
+
+Il repository completo viene scaricato in:
+
+```text
+.app-builder/vendor/marketing-skills
+```
+
+L'indice locale vive in:
+
+```text
+.app-builder/marketing-catalog/index.json
+```
+
+Luna usa on demand skill pertinenti a competitor, posizionamento, copy, onboarding, pricing,
+paywall, analytics, ASO e lancio. Il catalogo non viene registrato interamente come trigger attivi.
 
 ## Le 817 skill di sicurezza
 
@@ -92,20 +160,33 @@ Il catalogo completo viene scaricato in:
 .app-builder/vendor/anthropic-cybersecurity-skills
 ```
 
-Luna genera un indice locale in:
+L'indice locale vive in:
 
 ```text
 .app-builder/security-catalog/index.json
 ```
 
-Le 817 skill **non** vengono registrate tutte come skill attive. Sarebbe una pessima combinazione di
-trigger sovrapposti, contesto sprecato e procedure offensive pronte a intervenire dove nessuno le ha
-invitate. `$app-security-orchestrator` classifica i playbook come difensivi, dual-use, restricted o
-blocked e legge soltanto quelli pertinenti.
+Le 817 skill non vengono registrate tutte come skill attive. `$app-security-orchestrator` classifica
+i playbook come difensivi, dual-use, restricted o blocked e legge soltanto quelli pertinenti.
+Codex Security resta il motore primario per policy, threat model, scansioni, validazione e fix.
+L'esecuzione di strumenti esterni richiede scope e consenso separati.
 
-Codex Security resta il motore primario per policy, threat model, scansioni, validazione e fix. Il
-catalogo community aggiunge playbook per secret scanning, SAST, SBOM, API/auth, MobSF, iOS,
-serverless e altri controlli specialistici. L'esecuzione di tool esterni richiede consenso e scope.
+## Analytics e misurazione
+
+`$app-analytics-measurement` collega ogni metrica a una decisione reale:
+
+```text
+outcome
+→ metrica primaria
+→ guardrail
+→ eventi e proprietà minime
+→ baseline
+→ soglia
+→ verifica
+```
+
+Produce `docs/MEASUREMENT_PLAN.md`, non installa SDK e non invia dati. Baseline e risultati non
+vengono inventati. Privacy, retention e dati vietati fanno parte del gate.
 
 ## Progetti esistenti
 
@@ -122,8 +203,6 @@ Crea `.app-builder/adoption-report.md`, ricostruisce le fasi già soddisfatte e 
 gap. Non cambia stack, rinomina cartelle, aggiorna dipendenze o ridisegna tutto per preferenza.
 
 ## Installazione da GitHub
-
-### Skills CLI
 
 Dentro la cartella del progetto:
 
@@ -153,8 +232,8 @@ chmod +x scripts/*.sh
 ./scripts/init-project.sh --name "Nome app" --mode prototype --path "/percorso/progetto"
 ```
 
-L'inizializzatore preserva i file già esistenti, rileva `new` o `existing` e crea documenti Luna
-senza sovrascrivere quelli presenti salvo `--force`/`-Force`.
+L'inizializzatore preserva i file esistenti, rileva `new` o `existing` e crea documenti Luna senza
+sovrascriverli salvo `--force` o `-Force`.
 
 ## Doctor
 
