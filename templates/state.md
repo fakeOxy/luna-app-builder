@@ -10,6 +10,9 @@
 - Bootstrap consent date: never
 - Specialists registry: `.app-builder/specialists.json`
 - Security catalog: missing
+- Marketing catalog: missing
+- Dynamic skill discovery: unavailable
+- Engineering process: native
 
 ## Project
 - Name: {PROJECT_NAME}
@@ -23,11 +26,12 @@
 - Target platforms: da definire
 - Distribution target: da definire
 - Current phase: Phase 0 — Preflight, bootstrap and adoption
+- Current role: Operations Lead
 - Current specialist: app-builder-doctor
 - Specialist reason: verificare ambiente e stato iniziale
 - Delivery mode: guided
 - Current slice: INIT-00
-- State owner: current session until a two-chat workflow is explicitly activated
+- State owner: Luna/current session until a two-chat workflow is explicitly activated
 - Workflow: single_chat by default; may become two_chat when justified
 - Last updated: {DATE}
 
@@ -38,6 +42,7 @@
 - Required accounts/hardware: da verificare
 - Known costs: da verificare
 - Capability limits: da verificare
+- Open capability gap: none
 
 ## Users and problem
 - Primary user: da definire
@@ -83,6 +88,17 @@
 - Main terminology decision: da definire
 - Sensitive copy review: not_applicable_or_pending
 - Detailed artifact: `docs/COPY_SYSTEM.md`
+
+## Analytics and measurement
+- Gate status: pending
+- Primary outcome: da definire
+- Primary metric: da definire
+- Guardrail: da definire
+- Baseline type: unknown
+- Threshold status: unknown
+- Event implementation status: not_started
+- Privacy review: pending
+- Detailed artifact: `docs/MEASUREMENT_PLAN.md`
 
 ## Scope
 ### MVP
@@ -140,7 +156,7 @@
 | 5 Architecture, data, privacy, security | pending | | |
 | 6 Implementation | pending | | |
 | 7 QA and compliance | pending | | |
-| 8 Beta | pending | | |
+| 8 Beta and measurement | pending | measurement plan, feedback, verification | |
 | 9 Monetization, analytics, store readiness | pending | | |
 | 10 Release | pending | | |
 | 11 Operations and maintenance | pending | | |
@@ -151,6 +167,7 @@
 - Specification: pending
 - UX/accessibility: pending
 - Copy: pending
+- Measurement: pending
 - Design: pending
 - Architecture/security: pending
 - Implementation: pending
@@ -165,6 +182,7 @@
 - UX/accessibility: `docs/USER_FLOWS.md`, `docs/ACCESSIBILITY.md`
 - Brand/assets: `docs/BRAND.md`, `docs/ASSET_INVENTORY.md`
 - Copy: `docs/COPY_SYSTEM.md`
+- Measurement: `docs/MEASUREMENT_PLAN.md`
 - Design system: `design/`
 - Security: `docs/SECURITY_PLAN.md`
 - Implementation truth: codice e test riproducibili
@@ -173,12 +191,13 @@
 ## End-to-end coverage
 | Area | Status | Evidence or limitation | Owner |
 |---|---|---|---|
-| Strategy and feasibility | covered_pending | | current session |
+| Strategy and feasibility | covered_pending | | Luna |
 | Product and experience | covered_pending | | |
 | Brand and design | covered_pending | | |
 | Architecture and data | covered_pending | | |
 | Privacy, security, compliance | covered_pending | | |
 | Engineering and quality | covered_pending | | |
+| Analytics and evidence | covered_pending | | |
 | Monetization and distribution | covered_pending | | |
 | Operations and end of life | covered_pending | | |
 
@@ -186,11 +205,16 @@
 | Artifact | Path/URL | Status |
 |---|---|---|
 | Product discovery | `docs/PRODUCT_DISCOVERY.md` | in_progress |
+| Measurement plan | `docs/MEASUREMENT_PLAN.md` | pending |
 
-## Specialist history
-| Specialist | Reason | Artifact | Gate | Date |
-|---|---|---|---|---|
-| app-builder-doctor | avvio progetto | `.app-builder/doctor-report.md` | in_progress | {DATE} |
+## Delegation history
+| Role | Specialist | Reason | Allowed paths | Output | Risk | Gate | Date |
+|---|---|---|---|---|---|---|---|
+| Operations Lead | app-builder-doctor | avvio progetto | read-only + `.app-builder/doctor-report.md` | doctor report | low | in_progress | {DATE} |
+
+## Dynamic skill searches
+| Capability gap | Query | Candidates | Selected source | Consent | Post-check | Date |
+|---|---|---|---|---|---|---|
 
 ## Active handoffs
 | Owner | Output | Allowed paths | Status |
@@ -204,7 +228,7 @@
 ## Next interaction
 - Next decision: classificare progetto e autorizzare o rifiutare il bootstrap
 - Questions to ask: modalità e consenso soltanto se non deducibili
-- Recommended action: eseguire `$app-builder-doctor`; Luna sceglierà il prossimo specialista
+- Recommended action: eseguire `$app-builder-doctor`; Luna sceglierà ruolo e prossimo specialista
 
 ## Decision history
 - {DATE} — Progetto inizializzato con Luna App Builder e routing autonomo pronto.
