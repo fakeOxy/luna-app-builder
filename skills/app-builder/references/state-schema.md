@@ -15,6 +15,9 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Bootstrap consent date:
 - Specialists registry: `.app-builder/specialists.json`
 - Security catalog: missing | indexed | stale | blocked
+- Marketing catalog: missing | indexed | stale | blocked
+- Dynamic skill discovery: unavailable | ready | restricted
+- Engineering process: native | superpowers | fallback
 
 ## Project
 - Name:
@@ -28,11 +31,12 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Target platforms:
 - Distribution target:
 - Current phase:
+- Current role:
 - Current specialist:
 - Specialist reason:
 - Delivery mode: guided | vertical_slices
 - Current slice:
-- State owner:
+- State owner: Luna/current session
 - Workflow: single_chat | two_chat
 - Last updated:
 
@@ -43,6 +47,7 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Required accounts/hardware:
 - Known costs:
 - Capability limits:
+- Open capability gap:
 
 ## Users and problem
 - Primary user:
@@ -88,6 +93,17 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 - Main terminology decision:
 - Sensitive copy review:
 - Detailed artifact: `docs/COPY_SYSTEM.md`
+
+## Analytics and measurement
+- Gate status: pending | in_progress | approved | approved_with_assumptions | blocked | not_applicable
+- Primary outcome:
+- Primary metric:
+- Guardrail:
+- Baseline type:
+- Threshold status: unknown | provisional | approved
+- Event implementation status: not_started | planned | partial | verified
+- Privacy review:
+- Detailed artifact: `docs/MEASUREMENT_PLAN.md`
 
 ## Scope
 ### MVP
@@ -145,7 +161,7 @@ Crea `.app-builder/state.md`. Mantienilo breve, attuale e privo di segreti.
 | 5 Architecture, data, privacy, security | pending | | |
 | 6 Implementation | pending | | |
 | 7 QA and compliance | pending | | |
-| 8 Beta | pending | | |
+| 8 Beta and measurement | pending | measurement plan, feedback, verification | |
 | 9 Monetization, analytics, store readiness | pending | | |
 | 10 Release | pending | | |
 | 11 Operations and maintenance | pending | | |
@@ -159,6 +175,7 @@ not_applicable.
 - Specification:
 - UX/accessibility:
 - Copy:
+- Measurement:
 - Design:
 - Architecture/security:
 - Implementation:
@@ -173,6 +190,7 @@ not_applicable.
 - UX/accessibility: `docs/USER_FLOWS.md`, `docs/ACCESSIBILITY.md`
 - Brand/assets: `docs/BRAND.md`, `docs/ASSET_INVENTORY.md`
 - Copy: `docs/COPY_SYSTEM.md`
+- Measurement: `docs/MEASUREMENT_PLAN.md`
 - Design system:
 - Security: `docs/SECURITY_PLAN.md`
 - Implementation truth:
@@ -187,6 +205,7 @@ not_applicable.
 | Architecture and data | covered_pending | | |
 | Privacy, security, compliance | covered_pending | | |
 | Engineering and quality | covered_pending | | |
+| Analytics and evidence | covered_pending | | |
 | Monetization and distribution | covered_pending | | |
 | Operations and end of life | covered_pending | | |
 
@@ -194,9 +213,13 @@ not_applicable.
 | Artifact | Path/URL | Status |
 |---|---|---|
 
-## Specialist history
-| Specialist | Reason | Artifact | Gate | Date |
-|---|---|---|---|---|
+## Delegation history
+| Role | Specialist | Reason | Allowed paths | Output | Risk | Gate | Date |
+|---|---|---|---|---|---|---|---|
+
+## Dynamic skill searches
+| Capability gap | Query | Candidates | Selected source | Consent | Post-check | Date |
+|---|---|---|---|---|---|---|
 
 ## Active handoffs
 | Owner | Output | Allowed paths | Status |
@@ -216,17 +239,23 @@ not_applicable.
 
 ## Regole del routing autonomo
 
-- `Current specialist` deve riflettere lo specialista realmente attivo; l'utente non deve sceglierlo.
-- Registra in `Specialist history` motivo, artefatto e gate per evitare reinvocazioni rituali.
+- `Current role` e `Current specialist` devono riflettere il lavoro realmente attivo; l'utente non
+  deve sceglierli.
+- Luna resta l'unica interfaccia e il state owner.
+- Registra in `Delegation history` motivo, percorsi, output, rischio e gate.
 - Se lo specialista esterno manca ma il fallback nativo copre il gate, registra `partial` e continua.
 - Una transizione automatica è consentita soltanto se il prossimo passo è reversibile e già autorizzato.
+- `Open capability gap` viene valorizzato prima di usare `find-skills` e svuotato solo dopo post-check
+  o fallback documentato.
 
 ## Regole del bootstrap
 
 - `ready` richiede report, registro specialisti e post-check.
 - `partial` nomina installazioni fallite e fallback disponibili.
 - Il consenso bootstrap non autorizza strumenti invasivi o account esterni.
-- Il catalogo sicurezza `indexed` significa disponibile localmente, non 817 skill attive.
+- Catalogo sicurezza o marketing `indexed` significa disponibile localmente, non centinaia di skill
+  attive.
+- Superpowers può essere `ready` anche se una singola skill di processo non è pertinente al task.
 
 ## Regole del progetto esistente
 
@@ -242,6 +271,14 @@ not_applicable.
 - `approved_with_assumptions` incorpora il test delle assunzioni nel prossimo investimento.
 - `behavior-validated` richiede comportamento diretto e soglia definita prima del test.
 
+## Regole del Measurement Plan
+
+- Non segnare analytics `approved` senza outcome, decisione, metrica primaria, guardrail applicabili,
+  baseline o `unknown` motivato, soglia e privacy.
+- `verified` richiede prova reale dell'evento e assenza di dati vietati.
+- Metriche tecniche e metriche di prodotto restano distinte.
+- Nessun dato inventato può comparire come baseline.
+
 ## Regole di coerenza e persistenza
 
 - Non dire “ho registrato” finché il file non è stato scritto e riletto o il diff mostra i valori.
@@ -250,7 +287,7 @@ not_applicable.
 - `Target platforms` descrive il target attuale, non tutte le possibilità dello stack.
 - Per modalità personale, marca store, monetizzazione, backend remoto e compliance pubblica
   `not_applicable` quando esclusi.
-- Una sola fase, uno specialista proprietario e una slice `in_progress`.
+- Una sola fase, un ruolo proprietario e una slice `in_progress`.
 - Solo lo state owner modifica il file.
 - Collega artefatti dettagliati, non copiarli interamente.
 - Non salvare token, password, dati personali inutili o segreti.
