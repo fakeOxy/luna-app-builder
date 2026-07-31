@@ -37,19 +37,36 @@ case "$MODE" in personal|prototype|publication) ;; *) echo "Modalità non valida
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT="$(mkdir -p "$PROJECT" && cd "$PROJECT" && pwd)"
 DATE="$(date +%F)"
+PROJECT_ORIGIN="new"
+while IFS= read -r entry; do
+  base="$(basename "$entry")"
+  case "$base" in .app-builder|.agents|.codex|docs) continue ;; esac
+  PROJECT_ORIGIN="existing"
+  break
+done < <(find "$PROJECT" -mindepth 1 -maxdepth 1 -print)
+for signal in .git package.json src app ios android supabase pubspec.yaml Cargo.toml pyproject.toml; do
+  [[ -e "$PROJECT/$signal" ]] && PROJECT_ORIGIN="existing"
+done
+ADOPTION_STATUS="not_applicable"
+[[ "$PROJECT_ORIGIN" == existing ]] && ADOPTION_STATUS="pending"
+
 mkdir -p "$PROJECT/.app-builder/chat-prompts" "$PROJECT/.app-builder/handoffs" "$PROJECT/docs"
 
 render() {
   local source="$1" destination="$2" content
   content="$(cat "$source")"
-  content="${content//\{\{PROJECT_NAME\}\}/"$NAME"}"
-  content="${content//\{\{PROJECT_MODE\}\}/"$MODE"}"
-  content="${content//\{\{PROJECT_ROOT\}\}/"$PROJECT"}"
-  content="${content//\{\{DATE\}\}/"$DATE"}"
-  content="${content//\{PROJECT_NAME\}/"$NAME"}"
-  content="${content//\{PROJECT_MODE\}/"$MODE"}"
-  content="${content//\{PROJECT_ROOT\}/"$PROJECT"}"
-  content="${content//\{DATE\}/"$DATE"}"
+  content="${content//\{\{PROJECT_NAME\}\}/$NAME}"
+  content="${content//\{\{PROJECT_MODE\}\}/$MODE}"
+  content="${content//\{\{PROJECT_ROOT\}\}/$PROJECT}"
+  content="${content//\{\{PROJECT_ORIGIN\}\}/$PROJECT_ORIGIN}"
+  content="${content//\{\{ADOPTION_STATUS\}\}/$ADOPTION_STATUS}"
+  content="${content//\{\{DATE\}\}/$DATE}"
+  content="${content//\{PROJECT_NAME\}/$NAME}"
+  content="${content//\{PROJECT_MODE\}/$MODE}"
+  content="${content//\{PROJECT_ROOT\}/$PROJECT}"
+  content="${content//\{PROJECT_ORIGIN\}/$PROJECT_ORIGIN}"
+  content="${content//\{ADOPTION_STATUS\}/$ADOPTION_STATUS}"
+  content="${content//\{DATE\}/$DATE}"
   printf '%s\n' "$content" > "$destination"
 }
 
@@ -75,4 +92,5 @@ for f in "$ROOT"/templates/docs/*; do
 done
 
 echo "Progetto inizializzato: $PROJECT"
+echo "Origine rilevata: $PROJECT_ORIGIN"
 echo "Avvia Codex nella cartella e usa \$app-builder. Nessun segreto è stato creato o copiato."

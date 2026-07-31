@@ -6,6 +6,7 @@ name: Validate Luna App Builder
     branches:
       - main
       - "setup/**"
+      - "feat/**"
   workflow_dispatch:
 
 permissions:
@@ -17,9 +18,9 @@ concurrency:
 
 jobs:
   linux:
-    name: Linux validation and three-mode smoke test
+    name: Linux validation, roles and three-mode smoke test
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,19 +30,33 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Generate deterministic integrity manifest
+        run: python scripts/generate_integrity_manifest.py
+
+      - name: Upload generated manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-integrity-manifest
+          path: integrity-manifest.json
+          if-no-files-found: error
+
       - name: Install validator dependency
         run: python -m pip install --disable-pip-version-check pyyaml
 
       - name: Validate repository structure and integrity
         run: python scripts/validate_repository.py
 
-      - name: Parse Bash scripts
+      - name: Parse scripts
         shell: bash
         run: |
           set -euo pipefail
-          while IFS= read -r -d '' file; do
-            bash -n "$file"
-          done < <(find scripts skills -type f -name '*.sh' -print0)
+          while IFS= read -r -d '' file; do bash -n "$file"; done < <(find scripts skills -type f -name '*.sh' -print0)
+          while IFS= read -r -d '' file; do node --check "$file"; done < <(find scripts skills -type f -name '*.mjs' -print0)
 
       - name: Parse PowerShell scripts
         shell: pwsh
@@ -58,12 +73,14 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Smoke test Bash install, three modes, Doctor and integrity
+      - name: Smoke test install, roles, bootstrap dry-run and Doctor
         shell: bash
         run: |
           set -euo pipefail
           root="$(mktemp -d)"
           trap 'rm -rf "$root"' EXIT
+          native=(app-builder app-builder-doctor app-builder-handoff app-builder-about app-product-discovery app-requirements-mvp app-ux-accessibility app-brand-assets app-copywriting app-project-adoption app-security-orchestrator app-analytics-measurement)
+          docs=(PROJECT_VISION.md PRODUCT_DISCOVERY.md REQUIREMENTS.md BRAND.md ASSET_INVENTORY.md USER_FLOWS.md ACCESSIBILITY.md COPY_SYSTEM.md SECURITY_PLAN.md MEASUREMENT_PLAN.md)
 
           for mode in personal prototype publication; do
             sandbox="$root/$mode"
@@ -71,14 +88,20 @@ jobs:
             bash scripts/install.sh --scope project --project "$sandbox"
             bash scripts/init-project.sh --name "Test $mode" --mode "$mode" --path "$sandbox"
 
-            test -f "$sandbox/.agents/skills/app-builder/SKILL.md"
-            test -f "$sandbox/.app-builder/state.md"
-            test -f "$sandbox/docs/PROJECT_VISION.md"
-            grep -q "Project mode: $mode" "$sandbox/.app-builder/state.md"
-            grep -q "State owner: current session" "$sandbox/.app-builder/state.md"
-            grep -q "Phase 0 — Preflight" "$sandbox/.app-builder/state.md"
+            for skill in "${native[@]}"; do test -f "$sandbox/.agents/skills/$skill/SKILL.md"; done
+            for doc in "${docs[@]}"; do test -f "$sandbox/docs/$doc"; done
 
-            if grep -R -nE '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}' "$sandbox/.app-builder" "$sandbox/docs"; then
+            state="$sandbox/.app-builder/state.md"
+            grep -q "Project mode: $mode" "$state"
+            grep -q "Project origin: new" "$state"
+            grep -q "Adoption status: not_applicable" "$state"
+            grep -q "Bootstrap status: pending" "$state"
+            grep -q "Current role: Operations Lead" "$state"
+            grep -q "Current specialist: app-builder-doctor" "$state"
+            grep -q "Analytics and measurement" "$state"
+            grep -q "Phase 0 — Preflight, bootstrap and adoption" "$state"
+
+            if grep -R -nE '\{\{?(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|PROJECT_ORIGIN|ADOPTION_STATUS|DATE)\}?\}' "$sandbox/.app-builder" "$sandbox/docs"; then
               echo "Sono rimasti placeholder non renderizzati in $mode" >&2
               exit 1
             fi
@@ -92,28 +115,82 @@ jobs:
           config = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8-sig"))
           expected = sys.argv[2]
           assert config["project"]["mode"] == expected
+          assert config["project"]["origin"] == "new"
+          assert config["project"]["adoptionStatus"] == "not_applicable"
           assert config["project"]["stateOwner"] == "current-session"
-          assert config["workflow"]["mode"] == "auto"
+          assert config["appBuilder"]["routing"] == "autonomous"
+          assert config["routing"]["askUserToChooseSkill"] is False
+          assert config["routing"]["visibleInterface"] == "luna_only"
+          assert config["routing"]["externalRolesInternalOnly"] is True
+          assert config["routing"]["searchSkillsOnlyForCapabilityGap"] is True
+          assert config["bootstrap"]["automaticAfterConsent"] is True
+          assert config["bootstrap"]["securityCatalog"]["activateOnDemandOnly"] is True
+          assert config["bootstrap"]["marketingCatalog"]["activateOnDemandOnly"] is True
+          assert config["integrations"]["findSkills"] == "capability-gap-only"
+          assert config["integrations"]["superpowers"] == "engineering-process"
           assert config["workflow"]["twoChats"] is False
-          assert config["workflow"]["designChat"] is None
-          assert config["workflow"]["developmentChat"] is None
           PY
 
+            bootstrap="$sandbox/.agents/skills/app-builder/scripts/bootstrap-specialists.mjs"
+            node "$bootstrap" --project "$sandbox" --dry-run
+            registry="$sandbox/.app-builder/specialists.json"
+            report="$sandbox/.app-builder/bootstrap-report.md"
+            test -f "$registry"
+            test -f "$report"
+            grep -q '"visibleInterface": "luna_only"' "$registry"
+            grep -q '"stateOwner": "luna"' "$registry"
+            grep -q '"repository": "vercel-labs/skills"' "$registry"
+            grep -q '"repository": "obra/superpowers"' "$registry"
+            grep -q '"activation": "on_demand_only"' "$registry"
+            grep -q "Find Skills" "$report"
+            grep -q "Superpowers engineering process" "$report"
+            grep -q "Marketing catalog" "$report"
+            grep -q "Cybersecurity catalog" "$report"
+
             bash scripts/doctor.sh --project "$sandbox" --mode "$mode" --output .app-builder/doctor-report.md
-            grep -q "# App Builder Doctor" "$sandbox/.app-builder/doctor-report.md"
+            doctor="$sandbox/.app-builder/doctor-report.md"
+            grep -q "12 skill native rilevate" "$doctor"
+            grep -q "Skill discovery" "$doctor"
+            grep -q "Engineering process" "$doctor"
+            grep -q "Marketing catalog index" "$doctor"
+            grep -q "Measurement plan" "$doctor"
           done
+
+          existing="$root/existing"
+          mkdir -p "$existing"
+          printf '{"name":"existing-app","private":true}\n' > "$existing/package.json"
+          bash scripts/install.sh --scope project --project "$existing"
+          bash scripts/init-project.sh --name "Existing Test" --mode prototype --path "$existing"
+          grep -q "Project origin: existing" "$existing/.app-builder/state.md"
+          grep -q "Adoption status: pending" "$existing/.app-builder/state.md"
+          bash scripts/doctor.sh --project "$existing" --mode prototype --output .app-builder/doctor-report.md
+          grep -q "Existing project adoption" "$existing/.app-builder/doctor-report.md"
+          grep -q "missing_required" "$existing/.app-builder/doctor-report.md"
 
           bash scripts/verify-integrity.sh "$GITHUB_WORKSPACE"
 
   windows:
-    name: Windows PowerShell three-mode and UTF-8 smoke test
+    name: Windows roles, UTF-8 and three-mode smoke test
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Parse PowerShell scripts
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Generate deterministic integrity manifest
+        run: python scripts/generate_integrity_manifest.py
+
+      - name: Parse PowerShell and Node scripts
         shell: pwsh
         run: |
           $failed = $false
@@ -126,13 +203,19 @@ jobs:
               Write-Error "PowerShell non valido: $($_.FullName)`n$($errors | Out-String)"
             }
           }
+          Get-ChildItem scripts, skills -Recurse -File -Filter *.mjs | ForEach-Object {
+            & node --check $_.FullName
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          }
           if ($failed) { exit 1 }
 
-      - name: Smoke test PowerShell install, three modes, Doctor and integrity
+      - name: Smoke test install, roles, bootstrap dry-run and Doctor
         shell: pwsh
         run: |
           $repo = $env:GITHUB_WORKSPACE
           $root = Join-Path $env:RUNNER_TEMP "luna-smoke-$([guid]::NewGuid())"
+          $native = @("app-builder","app-builder-doctor","app-builder-handoff","app-builder-about","app-product-discovery","app-requirements-mvp","app-ux-accessibility","app-brand-assets","app-copywriting","app-project-adoption","app-security-orchestrator","app-analytics-measurement")
+          $docs = @("PROJECT_VISION.md","PRODUCT_DISCOVERY.md","REQUIREMENTS.md","BRAND.md","ASSET_INVENTORY.md","USER_FLOWS.md","ACCESSIBILITY.md","COPY_SYSTEM.md","SECURITY_PLAN.md","MEASUREMENT_PLAN.md")
           New-Item -ItemType Directory -Force -Path $root | Out-Null
           try {
             foreach ($mode in @("personal", "prototype", "publication")) {
@@ -141,35 +224,54 @@ jobs:
               & (Join-Path $repo "scripts/install.ps1") -Scope Project -ProjectPath $sandbox
               & (Join-Path $repo "scripts/init-project.ps1") -ProjectName "Test $mode" -Mode $mode -ProjectPath $sandbox
 
-              $skillPath = Join-Path $sandbox ".agents/skills/app-builder/SKILL.md"
+              foreach ($skill in $native) {
+                if (-not (Test-Path (Join-Path $sandbox ".agents/skills/$skill/SKILL.md"))) { throw "Skill $skill non installata" }
+              }
+              foreach ($doc in $docs) {
+                if (-not (Test-Path (Join-Path $sandbox "docs/$doc"))) { throw "Documento $doc mancante" }
+              }
+
               $statePath = Join-Path $sandbox ".app-builder/state.md"
-              $configPath = Join-Path $sandbox ".app-builder/config.json"
-              if (-not (Test-Path $skillPath)) { throw "Skill non installata in $mode" }
-              if (-not (Test-Path $statePath)) { throw "Stato non creato in $mode" }
-              if (-not (Test-Path (Join-Path $sandbox "docs/PROJECT_VISION.md"))) { throw "Documenti non creati in $mode" }
-
               $state = Get-Content -LiteralPath $statePath -Raw -Encoding UTF8
-              if ($state -notmatch "Project mode: $mode") { throw "Modalità non renderizzata in $mode" }
-              if ($state -notmatch "State owner: current session") { throw "State owner non neutrale in $mode" }
-              if ($state -notmatch "Phase 0 — Preflight") { throw "Trattino UTF-8 non preservato in $mode" }
+              foreach ($expected in @("Project mode: $mode","Project origin: new","Adoption status: not_applicable","Bootstrap status: pending","Current role: Operations Lead","Current specialist: app-builder-doctor","Analytics and measurement","Phase 0 — Preflight, bootstrap and adoption")) {
+                if ($state -notmatch [regex]::Escape($expected)) { throw "Stato mancante: $expected" }
+              }
               $badUtf8Prefixes = @([char]0x00E2, [char]0x00C3, [char]0x00EF)
-              if ($badUtf8Prefixes | Where-Object { $state.Contains([string]$_) }) { throw "Testo UTF-8 corrotto in $mode" }
+              if ($badUtf8Prefixes | Where-Object { $state.Contains([string]$_) }) { throw "Testo UTF-8 corrotto" }
 
-              $config = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
-              if ($config.project.mode -ne $mode) { throw "Config mode errato in $mode" }
-              if ($config.project.stateOwner -ne "current-session") { throw "Config stateOwner errato in $mode" }
-              if ($config.workflow.mode -ne "auto" -or $config.workflow.twoChats -ne $false) { throw "Workflow default errato in $mode" }
-              if ($null -ne $config.workflow.designChat -or $null -ne $config.workflow.developmentChat) { throw "Chat precreate in $mode" }
+              $config = Get-Content -LiteralPath (Join-Path $sandbox ".app-builder/config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+              if ($config.project.mode -ne $mode -or $config.project.origin -ne "new") { throw "Config progetto errato" }
+              if ($config.appBuilder.routing -ne "autonomous") { throw "Routing config errato" }
+              if ($config.routing.askUserToChooseSkill -ne $false -or $config.routing.visibleInterface -ne "luna_only" -or $config.routing.externalRolesInternalOnly -ne $true) { throw "Contratto routing errato" }
+              if ($config.bootstrap.securityCatalog.activateOnDemandOnly -ne $true -or $config.bootstrap.marketingCatalog.activateOnDemandOnly -ne $true) { throw "Cataloghi troppo attivi" }
+              if ($config.integrations.findSkills -ne "capability-gap-only" -or $config.integrations.superpowers -ne "engineering-process") { throw "Integrazioni esterne errate" }
 
-              $rendered = Get-ChildItem (Join-Path $sandbox ".app-builder"), (Join-Path $sandbox "docs") -Recurse -File |
-                Select-String -Pattern '\{\{(PROJECT_NAME|PROJECT_MODE|PROJECT_ROOT|DATE)\}\}'
-              if ($rendered) { throw "Sono rimasti placeholder non renderizzati in $mode" }
+              $bootstrap = Join-Path $sandbox ".agents/skills/app-builder/scripts/bootstrap-specialists.mjs"
+              & node $bootstrap --project $sandbox --dry-run
+              if ($LASTEXITCODE -ne 0) { throw "Bootstrap dry-run fallito" }
+              $registryPath = Join-Path $sandbox ".app-builder/specialists.json"
+              $registry = Get-Content $registryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+              if ($registry.visibleInterface -ne "luna_only" -or $registry.stateOwner -ne "luna") { throw "Ownership bootstrap errata" }
+              if ($registry.dynamicDiscovery.repository -ne "vercel-labs/skills" -or $registry.engineeringProcess.repository -ne "obra/superpowers") { throw "Find Skills o Superpowers mancanti" }
+              if ($registry.securityCatalog.activation -ne "on_demand_only" -or $registry.marketingCatalog.activation -ne "on_demand_only") { throw "Cataloghi non on demand" }
 
               & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $sandbox -Mode $mode -OutputPath ".app-builder/doctor-report.md"
-              if (-not (Select-String -Path (Join-Path $sandbox ".app-builder/doctor-report.md") -Pattern "# App Builder Doctor" -Quiet)) {
-                throw "Report Doctor non valido in $mode"
+              $doctor = Get-Content (Join-Path $sandbox ".app-builder/doctor-report.md") -Raw -Encoding UTF8
+              foreach ($expected in @("12 skill native rilevate","Skill discovery","Engineering process","Marketing catalog index","Measurement plan")) {
+                if ($doctor -notmatch [regex]::Escape($expected)) { throw "Doctor mancante: $expected" }
               }
             }
+
+            $existing = Join-Path $root "existing"
+            New-Item -ItemType Directory -Force -Path $existing | Out-Null
+            '{"name":"existing-app","private":true}' | Set-Content (Join-Path $existing "package.json") -Encoding UTF8
+            & (Join-Path $repo "scripts/install.ps1") -Scope Project -ProjectPath $existing
+            & (Join-Path $repo "scripts/init-project.ps1") -ProjectName "Existing Test" -Mode prototype -ProjectPath $existing
+            $existingState = Get-Content (Join-Path $existing ".app-builder/state.md") -Raw -Encoding UTF8
+            if ($existingState -notmatch "Project origin: existing" -or $existingState -notmatch "Adoption status: pending") { throw "Origine existing non renderizzata" }
+            & (Join-Path $repo "scripts/doctor.ps1") -ProjectPath $existing -Mode prototype -OutputPath ".app-builder/doctor-report.md"
+            $existingReport = Get-Content (Join-Path $existing ".app-builder/doctor-report.md") -Raw -Encoding UTF8
+            if ($existingReport -notmatch "Existing project adoption" -or $existingReport -notmatch "missing_required") { throw "Adozione progetto esistente non rilevata" }
 
             & (Join-Path $repo "scripts/verify-integrity.ps1") -RootPath $repo
           }

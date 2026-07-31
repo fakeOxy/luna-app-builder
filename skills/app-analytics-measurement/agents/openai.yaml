@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Analytics & Measurement"
+  short_description: "Collega outcome, eventi, funnel, soglie e privacy"
+  default_prompt: "Usa $app-analytics-measurement per definire o revisionare il piano di misurazione del progetto senza installare SDK o inventare dati."

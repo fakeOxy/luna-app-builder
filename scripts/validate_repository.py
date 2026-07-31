@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Static validation for the Luna App Builder repository.
+"""Static validation for Luna App Builder.
 
-The validator checks metadata, native skills, templates, attribution, obvious
-secret leaks, installer safety and the integrity manifest. It deliberately does
-not contact third-party services or execute external installers.
+Checks package metadata, native skills, autonomous routing, external-specialist
+contracts, bootstrap safety, templates, attribution, obvious secret leaks and
+the committed integrity manifest. It never contacts third parties or runs
+installers.
 """
 from __future__ import annotations
 
@@ -29,9 +30,29 @@ EXPECTED_SKILLS = {
     "app-builder-handoff",
     "app-builder-about",
     "app-product-discovery",
+    "app-requirements-mvp",
+    "app-ux-accessibility",
+    "app-brand-assets",
+    "app-copywriting",
+    "app-project-adoption",
+    "app-security-orchestrator",
+    "app-analytics-measurement",
 }
-ALLOWED_TEMPLATE_KEYS = {"PROJECT_NAME", "PROJECT_MODE", "PROJECT_ROOT", "DATE", "HANDOFF_ID"}
-IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache"}
+ALLOWED_TEMPLATE_KEYS = {
+    "PROJECT_NAME",
+    "PROJECT_MODE",
+    "PROJECT_ROOT",
+    "PROJECT_ORIGIN",
+    "ADOPTION_STATUS",
+    "DATE",
+    "HANDOFF_ID",
+}
+IGNORED_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache", "node_modules"}
+SECURITY_REPOSITORY = "https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git"
+SECURITY_PIN = "673da1f3b0b7be34ffc9624ef3858fe45f1c3bed"
+MARKETING_REPOSITORY = "https://github.com/coreyhaines31/marketingskills.git"
+FIND_SKILLS_REPOSITORY = "vercel-labs/skills"
+SUPERPOWERS_REPOSITORY = "obra/superpowers"
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -90,8 +111,7 @@ def parse_frontmatter(path: Path) -> tuple[dict[str, Any], str]:
     if not match:
         fail(f"Frontmatter YAML mancante o malformato: {path.relative_to(ROOT)}")
         return {}, text
-    metadata = load_yaml_text(match.group(1), str(path.relative_to(ROOT)))
-    return metadata, text[match.end() :]
+    return load_yaml_text(match.group(1), str(path.relative_to(ROOT))), text[match.end() :]
 
 
 def sha256(path: Path) -> str:
@@ -110,28 +130,40 @@ required_paths = [
     "creator.json",
     "integrity-manifest.json",
     "docs/VALIDATION.md",
+    "docs/superpowers/plans/2026-07-31-external-specialists-routing.md",
     "scripts/install.sh",
     "scripts/install.ps1",
     "scripts/init-project.sh",
     "scripts/init-project.ps1",
     "scripts/doctor.sh",
     "scripts/doctor.ps1",
+    "scripts/generate_integrity_manifest.py",
     "scripts/verify-integrity.sh",
     "scripts/verify-integrity.ps1",
     "scripts/validate_repository.py",
     "templates/state.md",
     "templates/app-builder.config.json",
     "templates/docs/PRODUCT_DISCOVERY.md",
-    "skills/app-product-discovery/SKILL.md",
-    "skills/app-product-discovery/agents/openai.yaml",
-    "skills/app-product-discovery/references/evidence-rubric.md",
-    "skills/app-product-discovery/references/discovery-template.md",
+    "templates/docs/REQUIREMENTS.md",
+    "templates/docs/BRAND.md",
+    "templates/docs/ASSET_INVENTORY.md",
+    "templates/docs/USER_FLOWS.md",
+    "templates/docs/ACCESSIBILITY.md",
+    "templates/docs/COPY_SYSTEM.md",
+    "templates/docs/SECURITY_PLAN.md",
+    "templates/docs/MEASUREMENT_PLAN.md",
+    "skills/app-builder/scripts/bootstrap-specialists.mjs",
+    "skills/app-builder/references/autonomous-routing.md",
+    "skills/app-builder/references/specialist-bootstrap.md",
+    "skills/app-builder/references/external-specialists.md",
+    "skills/app-builder/references/external-roles.md",
+    "skills/app-builder/references/dynamic-skill-discovery.md",
+    "skills/app-security-orchestrator/references/security-selection.md",
 ]
 for relative in required_paths:
     if not (ROOT / relative).is_file():
         fail(f"File obbligatorio mancante: {relative}")
 
-# Parse every JSON and YAML file first so syntax failures are explicit.
 for path in sorted(ROOT.rglob("*.json")):
     if not ignored(path):
         load_json(path)
@@ -144,54 +176,42 @@ creator = load_json(ROOT / "creator.json")
 plugin = load_json(ROOT / ".codex-plugin/plugin.json")
 marketplace = load_json(ROOT / ".agents/plugins/marketplace.json")
 manifest = load_json(ROOT / "integrity-manifest.json")
-config_template = load_json(ROOT / "templates/app-builder.config.json")
-
+config = load_json(ROOT / "templates/app-builder.config.json")
 version = creator.get("version")
+
 if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):
-    fail("creator.json.version non segue una forma SemVer riconoscibile")
-for label, value in {
-    "plugin version": plugin.get("version"),
-    "manifest version": manifest.get("version"),
-}.items():
+    fail("creator.json.version non segue SemVer")
+for label, value in {"plugin version": plugin.get("version"), "manifest version": manifest.get("version")}.items():
     if value != version:
         fail(f"Versione incoerente: {label}={value!r}, creator={version!r}")
-
-if creator.get("creator") != EXPECTED_CREATOR:
-    fail("creator.json non attribuisce il progetto a Massimiliano")
-if creator.get("officialRepository") != EXPECTED_REPOSITORY:
-    fail("creator.json.officialRepository non corrisponde al repository ufficiale")
-if plugin.get("name") != EXPECTED_PLUGIN_NAME:
-    fail("Nome plugin non valido")
+if creator.get("creator") != EXPECTED_CREATOR or manifest.get("creator") != EXPECTED_CREATOR:
+    fail("Credito del creatore incoerente")
+if creator.get("officialRepository") != EXPECTED_REPOSITORY or manifest.get("officialRepository") != EXPECTED_REPOSITORY:
+    fail("Repository ufficiale incoerente")
+if plugin.get("name") != EXPECTED_PLUGIN_NAME or plugin.get("skills") != "./skills/":
+    fail("Metadati plugin non validi")
 if plugin.get("author", {}).get("name") != EXPECTED_CREATOR:
     fail("Autore plugin non coerente")
 if plugin.get("interface", {}).get("developerName") != EXPECTED_CREATOR:
     fail("developerName plugin non coerente")
-if plugin.get("skills") != "./skills/":
-    fail("Il plugin deve puntare a ./skills/")
-if manifest.get("creator") != EXPECTED_CREATOR:
-    fail("Creatore nel manifesto non coerente")
-if manifest.get("officialRepository") != EXPECTED_REPOSITORY:
-    fail("Repository nel manifesto non coerente")
 
 plugins = marketplace.get("plugins")
 if not isinstance(plugins, list) or len(plugins) != 1:
     fail("Il marketplace deve esporre esattamente un plugin")
 else:
     item = plugins[0]
+    source = item.get("source", {})
     if item.get("name") != EXPECTED_PLUGIN_NAME:
         fail("Nome plugin marketplace non coerente")
-    source = item.get("source", {})
     if source.get("source") != "local" or source.get("path") != "./":
         fail("Il marketplace deve usare source local con path ./")
     if item.get("policy", {}).get("installation") != "AVAILABLE":
         fail("Policy marketplace installation deve essere AVAILABLE")
 
-# Native skill structure and metadata.
 skills_root = ROOT / "skills"
 actual_skills = {path.name for path in skills_root.iterdir() if path.is_dir()} if skills_root.is_dir() else set()
 if actual_skills != EXPECTED_SKILLS:
     fail(f"Set skill inatteso. Attese={sorted(EXPECTED_SKILLS)}, trovate={sorted(actual_skills)}")
-
 for skill_name in sorted(actual_skills):
     skill_dir = skills_root / skill_name
     skill_file = skill_dir / "SKILL.md"
@@ -201,17 +221,16 @@ for skill_name in sorted(actual_skills):
         continue
     metadata, body = parse_frontmatter(skill_file)
     if metadata.get("name") != skill_name:
-        fail(f"Nome frontmatter {metadata.get('name')!r} non coincide con cartella {skill_name}")
+        fail(f"Nome frontmatter non coincide con cartella: {skill_name}")
     description = metadata.get("description")
     if not isinstance(description, str) or len(description.strip()) < 40:
-        fail(f"Descrizione skill troppo breve o mancante: {skill_name}")
+        fail(f"Descrizione skill troppo breve: {skill_name}")
     if not body.strip().startswith("#"):
-        fail(f"Corpo skill senza titolo Markdown: {skill_name}")
+        fail(f"Corpo skill senza titolo: {skill_name}")
     if not agent_file.is_file():
         fail(f"agents/openai.yaml mancante per {skill_name}")
     else:
-        agent = load_yaml_text(read_text(agent_file), str(agent_file.relative_to(ROOT)))
-        interface = agent.get("interface", {})
+        interface = load_yaml_text(read_text(agent_file), str(agent_file.relative_to(ROOT))).get("interface", {})
         for key in ("display_name", "short_description", "default_prompt"):
             if not isinstance(interface.get(key), str) or not interface[key].strip():
                 fail(f"{agent_file.relative_to(ROOT)}: interface.{key} mancante")
@@ -220,19 +239,33 @@ main_skill = read_text(ROOT / "skills/app-builder/SKILL.md")
 for reference in sorted(set(re.findall(r"references/[A-Za-z0-9_.-]+\.md", main_skill))):
     if not (ROOT / "skills/app-builder" / reference).is_file():
         fail(f"Riferimento inesistente nella skill principale: {reference}")
-if "$app-product-discovery" not in main_skill:
-    fail("La skill principale non instrada il product discovery")
-if "docs/PRODUCT_DISCOVERY.md" not in read_text(ROOT / "skills/app-product-discovery/SKILL.md"):
-    fail("Product Discovery non dichiara il proprio artefatto persistente")
-
-# Attribution remains visible in the package, never forced into generated apps.
-for relative in ("README.md", "NOTICE", "CREDITS.md", "skills/app-builder/SKILL.md"):
-    if EXPECTED_CREATOR not in read_text(ROOT / relative):
-        fail(f"Credito del creatore mancante in {relative}")
+for routed in (
+    "$app-project-adoption",
+    "$app-product-discovery",
+    "$app-requirements-mvp",
+    "$app-brand-assets",
+    "$app-ux-accessibility",
+    "$app-copywriting",
+    "$app-security-orchestrator",
+    "$app-analytics-measurement",
+):
+    if routed not in main_skill:
+        fail(f"Routing autonomo mancante: {routed}")
+for phrase in (
+    "non deve conoscere i nomi delle skill",
+    "Luna resta l'unica interfaccia",
+    "state owner",
+    "capability gap",
+):
+    if phrase not in main_skill:
+        fail(f"Contratto orchestratore mancante: {phrase}")
 if "Le app create non devono mostrare i crediti" not in main_skill:
-    fail("La skill principale non separa i crediti di Luna dalle app generate")
+    fail("Crediti del pacchetto non separati dalle app generate")
 
-# Template placeholders and config.
+for relative_path in ("README.md", "NOTICE", "CREDITS.md", "skills/app-builder/SKILL.md"):
+    if EXPECTED_CREATOR not in read_text(ROOT / relative_path):
+        fail(f"Credito del creatore mancante in {relative_path}")
+
 for path in sorted((ROOT / "templates").rglob("*")):
     if not path.is_file():
         continue
@@ -240,10 +273,51 @@ for path in sorted((ROOT / "templates").rglob("*")):
     for match in re.finditer(r"\{\{([A-Z0-9_]+)\}\}", text):
         if match.group(1) not in ALLOWED_TEMPLATE_KEYS:
             fail(f"Placeholder non supportato {match.group(0)} in {path.relative_to(ROOT)}")
-if config_template.get("appBuilder", {}).get("creator") != EXPECTED_CREATOR:
-    fail("Il template config non conserva il credito del creatore")
+    for match in re.finditer(r"(?<!\{)\{([A-Z][A-Z0-9_]+)\}(?!\})", text):
+        if match.group(1) not in ALLOWED_TEMPLATE_KEYS:
+            fail(f"Placeholder singolo non supportato {match.group(0)} in {path.relative_to(ROOT)}")
+if config.get("appBuilder", {}).get("creator") != EXPECTED_CREATOR:
+    fail("Il config template non conserva il credito")
+if config.get("appBuilder", {}).get("routing") != "autonomous":
+    fail("Routing config non autonomo")
+if config.get("routing", {}).get("askUserToChooseSkill") is not False:
+    fail("Il config permette di scaricare la scelta skill sull'utente")
+if config.get("routing", {}).get("visibleInterface") != "luna_only":
+    fail("L'interfaccia visibile non è limitata a Luna")
+if config.get("routing", {}).get("externalRolesInternalOnly") is not True:
+    fail("I ruoli esterni non sono dichiarati interni")
+if config.get("bootstrap", {}).get("automaticAfterConsent") is not True:
+    fail("Bootstrap automatico dopo consenso non configurato")
+for catalog in ("securityCatalog", "marketingCatalog"):
+    if config.get("bootstrap", {}).get(catalog, {}).get("activateOnDemandOnly") is not True:
+        fail(f"Catalogo {catalog} non limitato all'attivazione on demand")
+if config.get("project", {}).get("origin") != "{PROJECT_ORIGIN}":
+    fail("Origine progetto non renderizzabile nel config")
 
-# Narrow secret/material leak scan.
+bootstrap = read_text(ROOT / "skills/app-builder/scripts/bootstrap-specialists.mjs")
+for required in (
+    SECURITY_REPOSITORY,
+    SECURITY_PIN,
+    MARKETING_REPOSITORY,
+    FIND_SKILLS_REPOSITORY,
+    SUPERPOWERS_REPOSITORY,
+    "find-skills",
+    "on_demand_only",
+    "--approved",
+    "--dry-run",
+):
+    if required not in bootstrap:
+        fail(f"Bootstrap privo del vincolo richiesto: {required}")
+for forbidden in ("shell: true", "curl ", "wget ", "Invoke-Expression"):
+    if forbidden in bootstrap:
+        fail(f"Bootstrap contiene pattern non consentito: {forbidden}")
+if re.search(r"Anthropic-Cybersecurity-Skills[^\n]+(?:skills add|--skill)", bootstrap):
+    fail("Il catalogo sicurezza non deve essere registrato in blocco come skill attive")
+if re.search(r"marketingskills[^\n]+--skill\s+\*", bootstrap):
+    fail("Il catalogo marketing non deve essere registrato in blocco come skill attive")
+if "failed_optional" not in bootstrap:
+    fail("Bootstrap privo di fallback per specialisti community")
+
 forbidden_names = re.compile(r"(^|/)(\.env($|\.)|.*\.(p8|p12|jks|keystore|pem|key))$", re.IGNORECASE)
 secret_patterns = [
     ("private key", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")),
@@ -254,11 +328,11 @@ secret_patterns = [
 for path in sorted(ROOT.rglob("*")):
     if not path.is_file() or ignored(path):
         continue
-    relative = path.relative_to(ROOT).as_posix()
-    if forbidden_names.search(relative):
-        fail(f"Possibile file segreto incluso: {relative}")
+    relative_path = path.relative_to(ROOT).as_posix()
+    if forbidden_names.search(relative_path):
+        fail(f"Possibile file segreto incluso: {relative_path}")
     if path.stat().st_size > 1_000_000:
-        warn(f"File grande non analizzato per segreti: {relative}")
+        warn(f"File grande non analizzato per segreti: {relative_path}")
         continue
     try:
         text = path.read_text(encoding="utf-8")
@@ -266,9 +340,8 @@ for path in sorted(ROOT.rglob("*")):
         continue
     for label, pattern in secret_patterns:
         if pattern.search(text):
-            fail(f"Possibile {label} incluso in {relative}")
+            fail(f"Possibile {label} incluso in {relative_path}")
 
-# Block especially dangerous installer patterns.
 installer_text = "\n".join(read_text(ROOT / p) for p in ("scripts/install.sh", "scripts/install.ps1"))
 for label, pattern in {
     "download ed esecuzione remota": r"(?:curl|wget|Invoke-WebRequest).*(?:\||iex|Invoke-Expression|bash|sh)",
@@ -278,7 +351,6 @@ for label, pattern in {
     if re.search(pattern, installer_text, re.IGNORECASE):
         fail(f"Pattern pericoloso negli installer: {label}")
 
-# Integrity manifest: every repository file except the manifest itself is covered.
 entries = manifest.get("files")
 if not isinstance(entries, list):
     fail("integrity-manifest.json.files deve essere una lista")
@@ -288,29 +360,27 @@ for entry in entries:
     if not isinstance(entry, dict):
         fail("Voce non oggetto nel manifesto")
         continue
-    relative = entry.get("path")
-    if not isinstance(relative, str) or not relative or relative.startswith("/") or ".." in Path(relative).parts:
-        fail(f"Path manifesto non sicuro: {relative!r}")
+    relative_path = entry.get("path")
+    if not isinstance(relative_path, str) or not relative_path or relative_path.startswith("/") or ".." in Path(relative_path).parts:
+        fail(f"Path manifesto non sicuro: {relative_path!r}")
         continue
-    if relative in manifest_paths:
-        fail(f"Voce duplicata nel manifesto: {relative}")
+    if relative_path in manifest_paths:
+        fail(f"Voce duplicata nel manifesto: {relative_path}")
         continue
-    manifest_paths.add(relative)
-    path = ROOT / relative
+    manifest_paths.add(relative_path)
+    path = ROOT / relative_path
     if not path.is_file():
-        fail(f"File del manifesto mancante: {relative}")
+        fail(f"File del manifesto mancante: {relative_path}")
         continue
     if entry.get("size") != path.stat().st_size:
-        fail(f"Dimensione manifesto errata per {relative}: {entry.get('size')} != {path.stat().st_size}")
+        fail(f"Dimensione manifesto errata per {relative_path}")
     if entry.get("sha256") != sha256(path):
-        fail(f"Checksum manifesto errato per {relative}")
+        fail(f"Checksum manifesto errato per {relative_path}")
 
 repository_files = {
     path.relative_to(ROOT).as_posix()
     for path in ROOT.rglob("*")
-    if path.is_file()
-    and path.name != "integrity-manifest.json"
-    and not ignored(path)
+    if path.is_file() and path.name != "integrity-manifest.json" and not ignored(path)
 }
 missing_from_manifest = sorted(repository_files - manifest_paths)
 extra_in_manifest = sorted(manifest_paths - repository_files)
@@ -329,4 +399,4 @@ if errors:
         print(f"  - {message}", file=sys.stderr)
     raise SystemExit(1)
 
-print(f"Validazione completata: {len(repository_files)} file coperti, {len(actual_skills)} skill valide, versione {version}.")
+print(f"Validazione completata: {len(repository_files)} file coperti, {len(actual_skills)} skill native valide, versione {version}.")

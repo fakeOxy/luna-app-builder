@@ -2,7 +2,7 @@
 
 **App Builder è stato ideato e creato da Massimiliano.**
 
-Luna guida una persona, anche senza esperienza tecnica, dall'idea a:
+Luna guida anche chi non ha esperienza tecnica dall'idea o da un progetto esistente a:
 
 - un'app personale;
 - un prototipo;
@@ -10,167 +10,275 @@ Luna guida una persona, anche senza esperienza tecnica, dall'idea a:
 
 Versione pubblicata: `2.0.0-beta.1`.
 
-## Cosa contiene
+La pull request della futura `v2.0.0-beta.2` aggiunge routing autonomo, adozione non invasiva,
+ruoli interni, specialisti di prodotto/design/copy/analytics, Superpowers, ricerca dinamica delle
+skill e cataloghi marketing e sicurezza locali. Finché non viene validata e unita, la release
+pubblica resta la beta precedente.
 
-- `$app-builder`: orchestratore end-to-end;
-- `$app-builder-doctor`: pre-check, installazioni autorizzate e post-check;
-- `$app-builder-handoff`: workflow Design/Sviluppo;
-- `$app-builder-about`: crediti, versione e integrità;
-- `$app-product-discovery`: problema, utenti, alternative, evidenze, rischi e gate prima del codice;
-- template di progetto, privacy, test, discovery, release e handoff;
-- mappa end-to-end per chiudere o dichiarare ogni area applicabile;
-- integrazione guidata con Expo, Supabase e Codex Security;
-- script Windows e macOS/Linux.
+## Una sola Luna
 
-## Core e specialisti
-
-Il pacchetto in sviluppo contiene **cinque skill native**:
-
-- `$app-builder`, che coordina l'intero ciclo di vita;
-- `$app-builder-doctor`, che verifica strumenti e autorizzazioni;
-- `$app-builder-handoff`, che coordina sessioni separate quando servono;
-- `$app-builder-about`, che espone versione, crediti e integrità;
-- `$app-product-discovery`, primo specialista nativo, che impedisce di passare dall'idea allo scaffold senza chiarire cosa viene costruito e perché.
-
-Le prime quattro formano il core operativo; `app-product-discovery` è uno specialista incluso perché
-serve all'inizio di quasi ogni progetto. Luna richiama gli altri specialisti esterni soltanto quando
-pertinenti, per esempio Expo, Supabase, Codex Security, UX, design system, store e pagamenti. Non
-installa l'intero catalogo per sport, perché anche i computer meritano un minimo di pietà.
-
-La release `v2.0.0-beta.1` resta il riferimento congelato del core iniziale. Le modifiche successive
-su branch e pull request appartengono alla preparazione di `v2.0.0-beta.2` finché non vengono
-validate e pubblicate.
-
-## Installazione consigliata da GitHub
-
-### Plugin Codex
-
-Aggiungi il repository come marketplace:
-
-```powershell
-codex plugin marketplace add fakeOxy/luna-app-builder
-```
-
-Poi apri `/plugins` in Codex e installa **Luna App Builder**. Avvia una nuova sessione e scrivi:
-
-```text
-$app-builder-doctor
-```
-
-### Skills CLI
-
-Per installare tutte le skill nel progetto corrente per Codex:
-
-```powershell
-npx skills add fakeOxy/luna-app-builder --skill "*" -a codex --copy -y
-```
-
-Dopo l'installazione apri una nuova sessione Codex nella cartella del progetto.
-
-## Installazione manuale su Windows
-
-Apri PowerShell nella cartella clonata o estratta:
-
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\install.ps1 -Scope User
-```
-
-Per installarla soltanto in un progetto:
-
-```powershell
-.\scripts\install.ps1 -Scope Project -ProjectPath "C:\percorso\progetto"
-```
-
-Poi **apri una nuova sessione Codex** e scrivi:
+L'utente non deve conoscere ruoli, agenti o nomi delle skill. Un comando generico come:
 
 ```text
 $app-builder Voglio creare una nuova app.
 ```
 
-## Installazione su macOS o Linux
+fa partire un percorso proporzionato:
+
+```text
+Doctor e bootstrap
+→ discovery
+→ requisiti e MVP
+→ brand e asset
+→ UX e accessibilità
+→ copywriting
+→ measurement plan
+→ design e architettura
+→ sicurezza
+→ piano engineering
+→ implementazione in vertical slice
+→ QA, beta, store e operazioni
+```
+
+Luna resta l'unica interfaccia visibile e il `state owner`. Assegna internamente il ruolo utile,
+chiama il minimo specialista necessario, verifica il risultato e restituisce una sola sintesi con un
+solo prossimo passo. Installazioni, account, spese, pubblicazioni, dati reali e strumenti invasivi
+richiedono consenso.
+
+## Dodici skill native
+
+- `$app-builder`: orchestrazione end-to-end, ruoli e routing autonomo;
+- `$app-builder-doctor`: ambiente, bootstrap, plugin, cataloghi e post-check;
+- `$app-builder-handoff`: coordinamento Design/Sviluppo;
+- `$app-builder-about`: versione, crediti e integrità;
+- `$app-product-discovery`: problema, utenti, evidenze e decisione prima del codice;
+- `$app-requirements-mvp`: requisiti, confine MVP, acceptance criteria e prima slice;
+- `$app-ux-accessibility`: flussi, stati, recovery e accessibilità;
+- `$app-brand-assets`: posizionamento, voce, sistema visivo e inventario asset;
+- `$app-copywriting`: microcopy, onboarding, errori, notifiche e store copy;
+- `$app-project-adoption`: innesto read-only nei progetti esistenti;
+- `$app-security-orchestrator`: regia sicurezza con Codex Security e playbook selettivi;
+- `$app-analytics-measurement`: outcome, eventi, funnel, baseline, soglie e privacy.
+
+Le skill native possiedono stato, gate, consenso e fallback. Gli specialisti community aumentano la
+profondità, ma non decidono scope o avanzamento.
+
+## Sei ruoli interni
+
+Luna può operare internamente come:
+
+- Market Analyst;
+- Product Marketing;
+- CTO;
+- Support & Feedback;
+- Data Analyst;
+- Operations Lead.
+
+`Operations Lead` è sempre Luna. I ruoli non sono sei chat da amministrare e non modificano lo
+stato centrale. Prima di ogni delega Luna registra motivo, input, percorsi consentiti, output atteso,
+rischio e consenso.
+
+## Primo accesso e bootstrap automatico
+
+Al primo accesso Luna:
+
+1. esegue il Doctor senza installare nulla;
+2. capisce se la cartella è nuova o contiene già un progetto;
+3. presenta una sola richiesta di consenso per il bootstrap gratuito dichiarato;
+4. dopo approvazione prepara automaticamente specialisti e cataloghi;
+5. ripete il Doctor e registra capacità riuscite, fallback e limiti.
+
+Il bootstrap prepara:
+
+- `find-skills` da `vercel-labs/skills`;
+- Superpowers da `obra/superpowers` come processo engineering;
+- `prd-generator`;
+- UI/UX Pro Max, `design` e `design-system`;
+- `build-a-brand`;
+- Impeccable;
+- `product-marketing`, `copywriting` e `copy-editing`;
+- il catalogo completo Marketing Skills;
+- il catalogo completo Anthropic Cybersecurity Skills.
+
+Le cache vendor vengono escluse tramite `.git/info/exclude`, senza modificare il `.gitignore`
+condiviso. Registro e report usano percorsi relativi.
+
+Il consenso iniziale non autorizza login, crediti, API, Docker, scanner, upload, penetration test,
+push o pubblicazioni.
+
+## Find Skills
+
+`find-skills` viene usata soltanto quando Luna registra un `capability_gap` non coperto da:
+
+1. skill native;
+2. plugin ufficiali;
+3. cataloghi locali;
+4. fallback già disponibili.
+
+Luna valuta massimo tre candidati e controlla repository, licenza, manutenzione, compatibilità,
+script, servizi richiesti e rischio. Una nuova sorgente non viene installata senza consenso. Il
+numero di download è un segnale, non una benedizione papale sulla supply chain.
+
+## Superpowers
+
+Superpowers organizza il lavoro del ruolo CTO per modifiche non banali:
+
+```text
+brainstorming e specifica
+→ piano scritto
+→ TDD quando applicabile
+→ implementazione
+→ debugging sistematico
+→ verifica prima del completamento
+```
+
+Può coordinare subagenti su task indipendenti, ma Luna conserva scope, stato, gate e comunicazione
+finale.
+
+## Catalogo marketing
+
+Il repository completo viene scaricato in:
+
+```text
+.app-builder/vendor/marketing-skills
+```
+
+L'indice locale vive in:
+
+```text
+.app-builder/marketing-catalog/index.json
+```
+
+Luna usa on demand skill pertinenti a competitor, posizionamento, copy, onboarding, pricing,
+paywall, analytics, ASO e lancio. Il catalogo non viene registrato interamente come trigger attivi.
+
+## Le 817 skill di sicurezza
+
+Il catalogo completo viene scaricato in:
+
+```text
+.app-builder/vendor/anthropic-cybersecurity-skills
+```
+
+L'indice locale vive in:
+
+```text
+.app-builder/security-catalog/index.json
+```
+
+Le 817 skill non vengono registrate tutte come skill attive. `$app-security-orchestrator` classifica
+i playbook come difensivi, dual-use, restricted o blocked e legge soltanto quelli pertinenti.
+Codex Security resta il motore primario per policy, threat model, scansioni, validazione e fix.
+L'esecuzione di strumenti esterni richiede scope e consenso separati.
+
+## Analytics e misurazione
+
+`$app-analytics-measurement` collega ogni metrica a una decisione reale:
+
+```text
+outcome
+→ metrica primaria
+→ guardrail
+→ eventi e proprietà minime
+→ baseline
+→ soglia
+→ verifica
+```
+
+Produce `docs/MEASUREMENT_PLAN.md`, non installa SDK e non invia dati. Baseline e risultati non
+vengono inventati. Privacy, retention e dati vietati fanno parte del gate.
+
+## Progetti esistenti
+
+Quando Luna trova codice reale, usa `$app-project-adoption` prima di modificare:
+
+- working tree e baseline;
+- stack, package manager e versioni;
+- build, test, lint e CI;
+- convenzioni, design system, asset e copy;
+- database, auth, API e sicurezza;
+- fonti di verità e aree protette.
+
+Crea `.app-builder/adoption-report.md`, ricostruisce le fasi già soddisfatte e attiva soltanto i
+gap. Non cambia stack, rinomina cartelle, aggiorna dipendenze o ridisegna tutto per preferenza.
+
+## Installazione da GitHub
+
+Dentro la cartella del progetto:
+
+```powershell
+npx skills add fakeOxy/luna-app-builder --skill "*" -a codex --copy -y
+```
+
+Apri una nuova sessione Codex e scrivi:
+
+```text
+$app-builder Voglio creare una nuova app.
+```
+
+### Installazione manuale Windows
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\install.ps1 -Scope Project -ProjectPath "C:\percorso\progetto"
+.\scripts\init-project.ps1 -ProjectName "Nome app" -Mode prototype -ProjectPath "C:\percorso\progetto"
+```
+
+### macOS/Linux
 
 ```bash
 chmod +x scripts/*.sh
-./scripts/install.sh --scope user
-```
-
-Solo nel progetto corrente:
-
-```bash
 ./scripts/install.sh --scope project --project "/percorso/progetto"
+./scripts/init-project.sh --name "Nome app" --mode prototype --path "/percorso/progetto"
 ```
 
-Inizializzazione e Doctor:
-
-```bash
-./scripts/init-project.sh --name "Nome app" --mode personal --path "/percorso/nome-app"
-./scripts/doctor.sh --project "/percorso/nome-app" --mode personal
-```
-
-## Inizializzare una cartella vuota
-
-```powershell
-.\scripts\init-project.ps1 -ProjectName "Nome app" -Mode personal -ProjectPath "C:\percorso\nome-app"
-```
-
-Modalità: `personal`, `prototype`, `publication`.
-
-L'inizializzatore crea anche `docs/PRODUCT_DISCOVERY.md`, che conserva problema, utenti, prove,
-assunzioni e decisione prima dell'MVP.
+L'inizializzatore preserva i file esistenti, rileva `new` o `existing` e crea documenti Luna senza
+sovrascriverli salvo `--force` o `-Force`.
 
 ## Doctor
 
-Il Doctor controlla senza installare:
+Controllo senza installazioni:
 
 ```powershell
 .\scripts\doctor.ps1 -ProjectPath "C:\percorso\progetto" -Mode publication
 ```
 
-Le installazioni vengono eseguite solo dopo consenso. Per le sorgenti ufficiali supportate:
+Dopo il consenso unico al bootstrap:
 
-- Expo: `codex plugin add expo@openai-curated`;
-- Supabase: `npx plugins add supabase-community/supabase-plugin --yes`;
-- Codex Security: installazione guidata da `/plugins` o Directory plugin, poi nuova sessione.
+```powershell
+.\scripts\doctor.ps1 -ProjectPath "C:\percorso\progetto" -Mode publication -AutoInstallApproved
+```
 
-`app-product-discovery` è inclusa nel pacchetto Luna e non richiede software o account aggiuntivi.
-La ricerca pubblica viene eseguita soltanto quando serve e deve distinguere fonti, ipotesi e prove
-di comportamento reale.
+Il report non prova automaticamente autenticazione, permessi o caricamento nella chat. Luna esegue
+il post-check e non salva token.
 
-## Una o due chat ChatGPT
+## Una o due chat
 
-La modalità predefinita è una sola chat, soprattutto per le app personali. Luna può attivare un
-workflow a due chat quando design e sviluppo hanno lavoro materiale separato e generare prompt e handoff per:
+Una sola chat è il default. Luna può attivare due sessioni quando brand/UX/copy e sviluppo hanno
+lavoro materiale separato:
 
 1. `Design – UI [Nome progetto]`;
 2. `Sviluppo – Frontend, backend e database [Nome progetto]`.
 
-Non può creare fisicamente le chat nell'interfaccia: l'utente le crea nello stesso Progetto
-ChatGPT e incolla i prompt generati.
+Genera prompt e handoff, ma non può creare fisicamente le chat nell'interfaccia.
 
 ## Cosa non promette
 
-- zero errori o zero vulnerabilità;
-- installazioni o login senza consenso;
-- revisione legale professionale;
+- zero errori o vulnerabilità;
 - approvazione garantita degli store;
-- che una ricerca documentale equivalga a domanda validata;
-- crediti fisicamente immodificabili su un computer controllato da terzi.
+- revisione legale o security professionale;
+- login, account o pubblicazioni senza l'utente;
+- che una scansione automatica equivalga a prova completa;
+- che una ricerca documentale equivalga a validazione del comportamento.
 
-Luna dichiara questi limiti quando diventano rilevanti, prepara i passaggi manuali e blocca le
-fasi quando manca una prova fondamentale.
+## Crediti, licenza e integrità
 
-## Crediti e licenza
-
-Vedi `CREDITS.md`, `NOTICE` e `LICENSE.txt`. Repository ufficiale: `fakeOxy/luna-app-builder`. Le app create non devono mostrare i crediti di App
-Builder. Per distribuzione pubblica/commerciale, la licenza va revisionata professionalmente.
-
-## Integrità
+Vedi `CREDITS.md`, `NOTICE` e `LICENSE.txt`. Le app create non devono mostrare i crediti di App
+Builder. Le sorgenti community mantengono licenze e attribuzioni proprie.
 
 ```powershell
 .\scripts\verify-integrity.ps1
 ```
 
-Il controllo rileva differenze rispetto al pacchetto. Il repository ufficiale esiste e le release
-possono essere collegate a un tag Git verificabile. La beta `2.0.0-beta.1` usa il manifesto SHA-256,
-ma non include ancora una firma crittografica forte; vedi `docs/RELEASE-SIGNING.md`.
+La release `v2.0.0-beta.1` usa tag Git e manifesto SHA-256, ma non include ancora una firma
+crittografica forte; vedi `docs/RELEASE-SIGNING.md`.

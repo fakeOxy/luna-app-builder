@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Requirements & MVP"
+  short_description: "Trasforma la discovery in un MVP verificabile"
+  default_prompt: "Usa $app-requirements-mvp per definire requisiti, confine MVP, esclusioni, criteri di accettazione e prima vertical slice senza iniziare il codice."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Project Adoption"
+  short_description: "Innesta Luna in progetti esistenti senza romperli"
+  default_prompt: "Usa $app-project-adoption per analizzare questo progetto in sola lettura, registrare baseline e convenzioni e proporre il primo innesto minimo senza cambiare stack o file fuori scope."

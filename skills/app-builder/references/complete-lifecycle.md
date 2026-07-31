@@ -1,21 +1,21 @@
 # Ciclo di vita completo
 
-## Fase 0 — Preflight, modalità e fattibilità
+## Fase 0 — Preflight, bootstrap, adozione e fattibilità
 
-Verifica progetto esistente, strumenti, skill, account richiesti, piattaforme, costi minimi,
-vincoli hardware, API e servizi. Seleziona personale/prototipo/pubblicazione e prepara il livello
-di discovery proporzionato.
+Esegui Doctor, determina modalità, verifica strumenti, account, piattaforme, costi, hardware, API e
+servizi. Se il progetto esiste, usa `$app-project-adoption` per ricognizione read-only, baseline,
+fonti di verità e convenzioni. Se il bootstrap non è stato eseguito, chiedi un solo consenso e
+prepara gli specialisti automaticamente.
 
-Artefatti: doctor report, modalità, capability matrix iniziale, mappa dei costi e prerequisiti,
-`docs/PRODUCT_DISCOVERY.md` inizializzato.
-Gate: il percorso è tecnicamente e finanziariamente plausibile; limiti noti; discovery pronta.
+Artefatti: doctor report, bootstrap report, adoption report quando applicabile, modalità,
+capability matrix, mappa costi e prerequisiti.
+Gate: progetto compreso, baseline nota, percorso plausibile, limiti e specialisti/fallback noti.
 
-## Fase 1 — Product discovery, utenti e MVP
+## Fase 1 — Discovery, requisiti e MVP
 
-Invoca `$app-product-discovery`. Definisci problema, utente, alternativa attuale, valore, casi
-d'uso, evidenze, assunzioni, concorrenti pertinenti, funzioni, esclusioni, modello di business,
-metriche, rischi e piano di validazione. Non progettare quaranta schermate prima di sapere perché
-esistono.
+Invoca `$app-product-discovery` quando problema, pubblico o direzione non sono affidabili. Poi usa
+`$app-requirements-mvp` per percorso principale, inventario prioritizzato, requisiti non funzionali,
+criteri di accettazione, esclusioni e prima vertical slice.
 
 La profondità dipende dalla modalità:
 
@@ -24,96 +24,106 @@ La profondità dipende dalla modalità:
 - pubblicazione: ricerca corrente e citata, differenziazione, costi, vincoli e validazione diretta.
 
 Artefatti: product discovery, vision, requirements, inventario funzionale, MVP e roadmap.
-Gate: problema, utente, outcome, alternativa, successo, prove disponibili, assunzioni, piattaforme
-e confine MVP approvati oppure esplicitamente approvati con assunzioni. Ricerca documentale non va
-chiamata validazione del comportamento.
+Gate: problema, utente, outcome, alternativa, successo, prove, assunzioni, piattaforme, MVP,
+acceptance criteria ed esclusioni approvati o approvati con assunzioni. Ricerca documentale non è
+validazione del comportamento.
 
-## Fase 2 — Brand e identità
+## Fase 2 — Brand, voce e asset
 
-Nome, posizionamento, personalità, voce, palette, tipografia, logo/icona necessari. Per strumenti
-personali interni può essere ridotta o non applicabile.
+Usa `$app-brand-assets`. Nei progetti esistenti estrai nome, tono, token e asset correnti prima di
+proporre cambi. Definisci posizionamento, voce, palette, tipografia, iconografia, logo/app icon e
+inventario asset proporzionato alla modalità.
 
-Artefatti: brand brief e asset approvati.
-Gate: una direzione coerente, non un buffet di sei brand incompatibili.
+Artefatti: `BRAND.md`, `ASSET_INVENTORY.md`, asset approvati e licenze/provenienza.
+Gate: direzione unica, token essenziali, asset richiesti assegnati e rischi nome/licenza dichiarati.
 
-## Fase 3 — UX, contenuti e accessibilità
+## Fase 3 — UX, accessibilità e copy
 
-Flussi principali, navigazione, inventario schermate, stati vuoti/loading/error/success, permessi,
-onboarding, copy, accessibilità e user journey. Considera tastiera, safe area, Dynamic Type,
-riduzione movimento, offline e recupero errori.
+Usa `$app-ux-accessibility` per flussi, navigazione, screen map, stati, permessi, error recovery,
+offline e criteri accessibilità. Usa `$app-copywriting` per microcopy, onboarding, errori, notifiche,
+azioni distruttive e contenuti sensibili.
 
-Artefatti: user flows, screen map, content rules, acceptance criteria.
-Gate: percorso principale e stati critici approvati.
+Considera tastiera, safe area, Dynamic Type/testo grande, screen reader, target tattili, contrasto,
+riduzione movimento, localizzazione e recupero dagli errori.
+
+Artefatti: user flows, accessibility plan/audit, copy system, inventario contenuti e acceptance
+criteria UX.
+Gate: percorso e stati critici approvati, copy implementabile, barriere principali trattate e test
+manuali/runtime assegnati.
 
 ## Fase 4 — Design system e UI
 
 Token, componenti, varianti, spaziature, responsive, motion, icone, fotografie, tema e specifiche
-per la slice. Il sistema del progetto è fonte di verità; una skill estetica non può sostituirlo.
+per la slice. Usa UI/UX Pro Max, Impeccable e design system quando disponibili, ma il sistema del
+progetto rimane fonte di verità.
 
 Artefatti: design system e specifiche verificabili.
-Gate: la slice può essere implementata senza decisioni visive materiali aperte.
+Gate: la slice può essere implementata senza decisioni visive o testuali materiali aperte.
 
 ## Fase 5 — Architettura, dati, privacy e sicurezza
 
 Scegli stack e dipendenze; modella dati, auth, autorizzazioni, API, storage, caching, ambienti,
-backup, migrazioni, osservabilità e costi. Crea mappa dati e, per progetti esposti, SECURITY.md e
-threat model. Attiva moduli condizionali.
+backup, migrazioni, osservabilità e costi. Usa `$app-security-orchestrator` e Codex Security per
+policy, threat model, scan e validation. Seleziona soltanto playbook community pertinenti.
 
-Artefatti: architecture decision record, data model, privacy data map, security policy, threat
-model, environment plan, backup/restore plan.
-Gate: confini, dati, responsabilità e rischi sono espliciti; nessun segreto nel client.
+Artefatti: ADR, data model, privacy data map, SECURITY.md, threat model, security plan, environment
+plan, backup/restore plan.
+Gate: confini, dati, responsabilità e rischi espliciti; segreti fuori dal client; auth/autorizzazioni
+con strategia di prova.
 
 ## Fase 6 — Implementazione in vertical slice
 
-Per ogni slice: specifica, piano, codice, migrazioni, test, prova reale, controllo sicurezza e
-handoff. Mantieni build eseguibile. Versiona schema e configurazioni. Non accumulare un backend
-immaginario dietro schermate perfette.
+Per ogni slice: evidenza, requisiti, UX/copy/design necessari, piano tecnico, sicurezza, codice,
+migrazioni, test, prova reale e handoff. Mantieni build eseguibile e rispetta convenzioni adottate.
+Non mescolare refactor ampio e nuovo comportamento senza motivo.
 
 Artefatti: codice, test, migrazioni, log di verifica, stato aggiornato.
-Gate: acceptance criteria dimostrati nell'ambiente previsto.
+Gate: acceptance criteria dimostrati nell'ambiente previsto e regressioni note.
 
 ## Fase 7 — QA, affidabilità, sicurezza e conformità
 
 Test funzionali, integrazione, regressione, dispositivi, browser, accessibilità, performance,
 rete lenta/offline, errori, aggiornamenti, privacy, permessi, sicurezza, pagamenti, account e
-cancellazione. Verifica backup e ripristino.
+cancellazione. Verifica backup e ripristino. Per release pubbliche valuta SAST, dependency scan,
+SBOM e assessment build mobile.
 
-Artefatti: test plan eseguito, report QA, scan security, issue register.
-Gate: ogni blocker è fixed, accepted con autorità/ragione oppure deferred con owner e data; i
-critici non sono accettabili per release pubbliche.
+Artefatti: test plan eseguito, report QA/accessibilità, scan security, issue register.
+Gate: blocker chiusi o assegnati; finding critici chiusi; finding alti gestiti dal proprietario;
+controlli non eseguiti dichiarati.
 
 ## Fase 8 — Beta e stabilizzazione
 
 Build interna, tester reali, canali beta, feedback strutturato, crash, metriche di attivazione,
 regressioni e iterazioni. Dati beta separati dalla produzione quando necessario.
 
-Confronta i risultati beta con le assunzioni e le soglie scritte nel Product Discovery. Aggiorna la
-raccomandazione quando il comportamento reale contraddice la ricerca iniziale.
+Confronta i risultati con assunzioni e soglie della discovery. Aggiorna requisiti, UX, copy e
+raccomandazione quando il comportamento reale contraddice le ipotesi.
 
-Artefatti: beta plan, feedback register, release candidate, discovery aggiornata quando serve.
-Gate: percorso principale completato da tester, assunzioni principali riesaminate e blocker chiusi.
+Artefatti: beta plan, feedback register, release candidate, discovery e requirements aggiornati.
+Gate: percorso principale completato da tester, assunzioni riesaminate e blocker chiusi.
 
 ## Fase 9 — Monetizzazione, analytics e store readiness
 
-Definisci gratuitamente/Premium, prezzi, trial, paywall, restore, cancellazioni, analytics,
-consensi, metadata, screenshot, privacy labels/data safety, support URL e contenuti store.
+Definisci gratuito/Premium, prezzi, trial, paywall, restore, cancellazioni, analytics, consensi,
+metadata, screenshot, privacy labels/data safety, support URL e contenuti store. Usa copy e brand
+approvati; non promettere funzioni non presenti.
 
-Artefatti: monetization spec, event plan, store listing, privacy checklist.
-Gate: funzionalità e claim coincidono; acquisti e policy verificati.
+Artefatti: monetization spec, event plan, store listing, asset store, privacy checklist.
+Gate: funzionalità e claim coincidono; acquisti, privacy e policy verificati.
 
 ## Fase 10 — Pubblicazione e rollout
 
 Versioning, build firmata, upload, revisione, rollout graduale, monitoraggio, rollback e risposta
-agli store. L'utente conserva le conferme finali e gli account.
+agli store. L'utente conserva conferme finali e account.
 
 Artefatti: release checklist, build e note, approvazioni, piano rollout.
-Gate: release pubblicata o distribuita con monitoraggio attivo.
+Gate: release pubblicata o distribuita con monitoraggio e rollback pronti.
 
 ## Fase 11 — Operazioni, manutenzione, crescita e dismissione
 
 Crash, incidenti, aggiornamenti, costi, dipendenze, backup, migrazioni, supporto, recensioni,
-retention, nuove versioni e scansioni dopo cambi sensibili. Prevedi esportazione e cancellazione
-dati e un piano di fine vita.
+retention, nuove versioni e scansioni dopo cambi sensibili. Prevedi esportazione/cancellazione dati
+e fine vita.
 
-Artefatti: runbook, maintenance plan, incident log, roadmap e sunset plan quando serve.
-Gate: proprietà e frequenze operative assegnate.
+Artefatti: runbook, maintenance plan, incident log, roadmap e sunset plan.
+Gate: proprietà, frequenze operative e condizioni di escalation assegnate.
