@@ -27,11 +27,11 @@
 
 **Produces:** controlli che falliscono finché non esistono `find-skills`, Superpowers, catalogo marketing, registro ruoli e analytics.
 
-- [ ] Aggiungere aspettative per la dodicesima skill nativa `app-analytics-measurement`.
-- [ ] Richiedere i riferimenti `external-roles.md` e `dynamic-skill-discovery.md`.
-- [ ] Verificare nel bootstrap i repository di Vercel Skills, Superpowers e Marketing Skills.
-- [ ] Verificare che i cataloghi sicurezza e marketing siano `on_demand_only`.
-- [ ] Eseguire la CI e confermare il fallimento dovuto alle capacità mancanti.
+- [x] Aggiungere aspettative per la dodicesima skill nativa `app-analytics-measurement`.
+- [x] Richiedere i riferimenti `external-roles.md` e `dynamic-skill-discovery.md`.
+- [x] Verificare nel bootstrap i repository di Vercel Skills, Superpowers e Marketing Skills.
+- [x] Verificare che i cataloghi sicurezza e marketing siano `on_demand_only`.
+- [x] Eseguire la CI e confermare il fallimento dovuto alle capacità mancanti.
 
 ### Task 2: Analytics e ruoli interni
 
@@ -43,10 +43,10 @@
 
 **Produces:** contratto per metriche e sei ruoli interni non visibili.
 
-- [ ] Definire eventi, proprietà, funnel, baseline, soglie e minimizzazione dati.
-- [ ] Definire ruoli Market Analyst, Product Marketing, CTO, Support, Data Analyst e Operations.
-- [ ] Stabilire che un ruolo può usare più skill ma non possiede stato o decisioni finali.
-- [ ] Aggiungere il template persistente del piano di misurazione.
+- [x] Definire eventi, proprietà, funnel, baseline, soglie e minimizzazione dati.
+- [x] Definire ruoli Market Analyst, Product Marketing, CTO, Support, Data Analyst e Operations.
+- [x] Stabilire che un ruolo può usare più skill ma non possiede stato o decisioni finali.
+- [x] Aggiungere il template persistente del piano di misurazione.
 
 ### Task 3: Skill discovery e catalogo marketing
 
@@ -56,12 +56,12 @@
 
 **Produces:** bootstrap di `find-skills`, Superpowers e catalogo marketing completo indicizzato localmente.
 
-- [ ] Installare `find-skills` da `vercel-labs/skills`.
-- [ ] Installare Superpowers da `obra/superpowers` per Codex quando non già presente.
-- [ ] Clonare Marketing Skills a un commit fissato in `.app-builder/vendor`.
-- [ ] Generare `.app-builder/marketing-catalog/index.json`.
-- [ ] Conservare l'attivazione `on_demand_only` e fallback nativo.
-- [ ] Registrare sorgente, commit, licenza dichiarata, stato e percorsi relativi.
+- [x] Installare `find-skills` da `vercel-labs/skills`.
+- [x] Installare Superpowers da `obra/superpowers` per Codex quando non già presente.
+- [x] Clonare Marketing Skills a un commit fissato in `.app-builder/vendor`.
+- [x] Generare `.app-builder/marketing-catalog/index.json`.
+- [x] Conservare l'attivazione `on_demand_only` e fallback nativo.
+- [x] Registrare sorgente, commit, licenza dichiarata, stato e percorsi relativi.
 
 ### Task 4: Routing autonomo e stato
 
@@ -75,10 +75,10 @@
 
 **Produces:** Luna seleziona ruolo e specialista senza chiedere all'utente nomi di skill.
 
-- [ ] Inserire analytics nel percorso discovery, beta e store.
-- [ ] Cercare skill nuove soltanto davanti a un capability gap reale.
-- [ ] Registrare ruolo, specialista, input, output, rischio e gate.
-- [ ] Impedire a specialisti esterni di modificare stato centrale o ampliare lo scope.
+- [x] Inserire analytics nel percorso discovery, beta e store.
+- [x] Cercare skill nuove soltanto davanti a un capability gap reale.
+- [x] Registrare ruolo, specialista, input, output, rischio e gate.
+- [x] Impedire a specialisti esterni di modificare stato centrale o ampliare lo scope.
 
 ### Task 5: Verifica e documentazione
 
@@ -90,8 +90,14 @@
 
 **Produces:** pacchetto verificato su Linux e Windows e pronto al collaudo manuale.
 
-- [ ] Eseguire validatore, parsing, smoke test tre modalità e bootstrap dry-run.
-- [ ] Verificare un progetto nuovo e uno esistente fittizio.
-- [ ] Verificare che i cataloghi non diventino centinaia di trigger attivi.
-- [ ] Rigenerare il manifesto deterministico.
-- [ ] Lasciare la PR in bozza fino ai test reali Codex.
+- [x] Eseguire validatore, parsing, smoke test tre modalità e bootstrap dry-run.
+- [x] Verificare un progetto nuovo e uno esistente fittizio.
+- [x] Verificare che i cataloghi non diventino centinaia di trigger attivi.
+- [x] Rigenerare il manifesto deterministico.
+- [x] Lasciare la PR in bozza fino ai test reali Codex.
+
+## Verifica automatica
+
+- RED: la CI ha fallito dopo l'introduzione dei controlli per le capacità mancanti.
+- GREEN: Linux e Windows hanno superato validatore, parsing, tre modalità, bootstrap dry-run, progetto esistente, Doctor e integrità sul commit `415a45214d55051bdca37e26129e6f934001a4fb`.
+- Residuo manuale: bootstrap reale e routing conversazionale in una sessione Codex isolata.
