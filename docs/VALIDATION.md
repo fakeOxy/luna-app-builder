@@ -50,7 +50,8 @@ richiedere `$app-project-adoption` prima di modifiche strutturali.
 
 I controlli per la dodicesima skill, i ruoli, Find Skills, Superpowers e il catalogo marketing sono
 stati introdotti prima dell'implementazione. La prima esecuzione è fallita sui file e contratti
-mancanti; l'implementazione successiva deve rendere verdi gli stessi controlli senza indebolirli.
+mancanti. Dopo l'implementazione, la run `30664671279` ha superato validatore, parsing, tre modalità,
+bootstrap dry-run, Doctor, progetto esistente e integrità sia su Linux sia su Windows.
 
 ## Cosa non viene eseguito in CI
 
